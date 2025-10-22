@@ -4,21 +4,23 @@ import { DrugClassesTool } from "@/components/DrugClassesTool";
 import { PregnancySafetyTool } from "@/components/PregnancySafetyTool";
 import { DrugInteractionsTool } from "@/components/DrugInteractionsTool";
 import { Pill } from "lucide-react";
-
 type TabType = "treatmentPlans" | "drugClasses" | "pregnancy" | "interactions";
-
 const Index = () => {
   const [activeTab, setActiveTab] = useState<TabType>("treatmentPlans");
-
-  const tabs = [
-    { id: "treatmentPlans" as TabType, label: "Treatment Plans" },
-    { id: "drugClasses" as TabType, label: "Antihypertensive Classes" },
-    { id: "pregnancy" as TabType, label: "Pregnancy Safety" },
-    { id: "interactions" as TabType, label: "Drug Interactions" },
-  ];
-
-  return (
-    <div className="min-h-screen bg-background">
+  const tabs = [{
+    id: "treatmentPlans" as TabType,
+    label: "Treatment Plans"
+  }, {
+    id: "drugClasses" as TabType,
+    label: "Antihypertensive Classes"
+  }, {
+    id: "pregnancy" as TabType,
+    label: "Pregnancy Safety"
+  }, {
+    id: "interactions" as TabType,
+    label: "Drug Interactions"
+  }];
+  return <div className="min-h-screen bg-background">
       <header className="bg-card border-b border-border shadow-sm">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-3">
@@ -26,9 +28,7 @@ const Index = () => {
               <Pill className="h-8 w-8 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-                Clinical Pharmacology Lookup Tool
-              </h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground">Loeffler </h1>
               <p className="text-sm text-muted-foreground mt-1">
                 Professional reference for antihypertensive medications
               </p>
@@ -42,19 +42,9 @@ const Index = () => {
           {/* Tab Navigation */}
           <div className="border-b border-border bg-muted/30">
             <div className="flex overflow-x-auto">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`px-6 py-4 text-sm font-semibold whitespace-nowrap transition-all border-b-2 ${
-                    activeTab === tab.id
-                      ? "text-primary border-primary bg-background"
-                      : "text-muted-foreground border-transparent hover:text-foreground hover:bg-muted/50"
-                  }`}
-                >
+              {tabs.map(tab => <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`px-6 py-4 text-sm font-semibold whitespace-nowrap transition-all border-b-2 ${activeTab === tab.id ? "text-primary border-primary bg-background" : "text-muted-foreground border-transparent hover:text-foreground hover:bg-muted/50"}`}>
                   {tab.label}
-                </button>
-              ))}
+                </button>)}
             </div>
           </div>
 
@@ -71,8 +61,6 @@ const Index = () => {
           <p>For professional medical reference only. Always consult current clinical guidelines.</p>
         </footer>
       </main>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
