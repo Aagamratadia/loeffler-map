@@ -1,3 +1,127 @@
+// Treatment Plans Data
+export const treatmentPlansData = {
+  "SBP 120–139 mmHg and/or DBP 70–89 mmHg": {
+    "Low Risk (CVD risk <10%)": {
+      severity: "Elevated BP (High-Normal)",
+      initiation_criteria: "Lifestyle-only stage",
+      strategy: "Lifestyle modifications (salt restriction, exercise, weight reduction)",
+      therapy: "None",
+      target_bp: "<120/70 mmHg",
+      notes: "Drug therapy not indicated."
+    },
+    "Sufficiently High Risk (CVD, DM, CKD, HMOD, etc.)": {
+      severity: "Elevated BP (High-Normal)",
+      initiation_criteria: "If ≥130/80 mmHg after 3 months of lifestyle measures",
+      strategy: "Lifestyle + consider pharmacotherapy",
+      therapy: "ACEi/ARB, CCB, or Diuretic depending on comorbidity",
+      target_bp: "120–129/70–79 mmHg",
+      notes: "Start drugs if lifestyle changes fail or not implemented."
+    },
+    "Borderline High Risk (CVD risk 5–10%)": {
+      severity: "Elevated BP (High-Normal)",
+      initiation_criteria: "Based on additional risk modifiers",
+      strategy: "Lifestyle therapy ± pharmacotherapy",
+      therapy: "ACEi/ARB, CCB, or Diuretic",
+      target_bp: "120–129/70–79 mmHg",
+      notes: "Use CAC score, arterial stiffness, or biomarkers to up-classify."
+    }
+  },
+  "SBP 140–159 mmHg and/or DBP 90–99 mmHg": {
+    "General (All patients)": {
+      severity: "Grade 1 HTN",
+      initiation_criteria: "Confirmed elevated BP",
+      strategy: "Lifestyle + pharmacological therapy",
+      therapy: "Dual SPC: RAS blocker (ACEi/ARB) + CCB or Diuretic",
+      target_bp: "120–129/70–79 mmHg",
+      notes: "Prefer single-pill combination."
+    },
+    "Low-risk exception (Indian STG)": {
+      severity: "Grade 1 HTN",
+      initiation_criteria: "Uncomplicated (no DM, CVD, organ damage)",
+      strategy: "1–3 month trial of lifestyle alone",
+      therapy: "If persists: Monotherapy (CCB, low-dose thiazide, or ACEi)",
+      target_bp: "<130/80 mmHg (if tolerated)",
+      notes: "Indian STG permits trial of lifestyle before drug."
+    },
+    "High risk (DM, CVD, CKD, organ damage)": {
+      severity: "Grade 1 HTN",
+      initiation_criteria: "Immediate",
+      strategy: "Lifestyle + pharmacological therapy",
+      therapy: "Dual SPC",
+      target_bp: "120–129/70–79 mmHg",
+      notes: "Always treat; Indian STG allows 1–2 drugs initially."
+    }
+  },
+  "SBP ≥160 mmHg and/or DBP ≥100 mmHg": {
+    "High Risk": {
+      severity: "Grade 2 HTN",
+      initiation_criteria: "Immediate",
+      strategy: "Lifestyle + pharmacological therapy",
+      therapy: "Dual SPC: RAS blocker (ACEi/ARB) + CCB or Diuretic",
+      target_bp: "120–129/70–79 mmHg",
+      notes: "Always treat; Indian STG allows 1–2 drugs initially."
+    }
+  },
+  "SBP ≥180 mmHg and/or DBP ≥110 mmHg": {
+    "All": {
+      severity: "Grade 3 HTN (Severe)",
+      initiation_criteria: "Immediate (confirm within 1 week)",
+      strategy: "Lifestyle + pharmacological (urgent initiation)",
+      therapy: "Dual SPC; may need triple therapy",
+      target_bp: "120–129/70–79 mmHg",
+      notes: "Start without delay unless hypertensive emergency."
+    }
+  },
+  "≥140/90 mmHg on 3 drugs (RAS blocker + CCB + Diuretic)": {
+    "High / Special case": {
+      severity: "Resistant HTN",
+      initiation_criteria: "After confirming adherence & excluding pseudo-resistance",
+      strategy: "Specialist management",
+      therapy: "+ Spironolactone if K<4.5, eGFR>45; alternatives: eplerenone, amiloride, doxazosin, clonidine, β-blocker",
+      target_bp: "<130/80 mmHg",
+      notes: "Consider renal denervation for true resistant HTN."
+    }
+  },
+  "SBP >180, DBP >110 (no acute organ damage)": {
+    "–": {
+      severity: "Hypertensive Urgency",
+      initiation_criteria: "Same-day initiation",
+      strategy: "Gradual BP reduction over hours–days",
+      therapy: "Oral furosemide, clonidine",
+      target_bp: "Stepwise normalization",
+      notes: "Avoid rapid drop. Transition to long-term therapy."
+    }
+  },
+  "SBP >180, DBP >120 + acute organ damage": {
+    "–": {
+      severity: "Hypertensive Emergency",
+      initiation_criteria: "Immediate",
+      strategy: "Controlled BP reduction",
+      therapy: "IV labetalol, nicardipine, nitroprusside, urapidil",
+      target_bp: "≤25% MAP reduction in 1 hour; normalize over 24–48 hr",
+      notes: "Tailor to organ involvement (e.g., nitroglycerine for ACS)."
+    }
+  },
+  "–": {
+    "General Pop <80 yr": {
+      severity: "Special Targets (Subgroups)",
+      initiation_criteria: "-",
+      strategy: "-",
+      therapy: "-",
+      target_bp: "<140/90 mmHg",
+      notes: "Conservative Indian STG, WHO, ISH"
+    },
+    "Elderly >80 yr": {
+      severity: "Special Targets (Subgroups)",
+      initiation_criteria: "If SBP ≥160 mmHg",
+      strategy: "Treat if tolerated",
+      therapy: "RAS blocker, CCB, or Diuretic",
+      target_bp: "SBP 140–150 mmHg",
+      notes: "Stop if SBP <130 mmHg or adverse events"
+    }
+  }
+};
+
 // Drug Classes Data
 export const drugClassesData = {
   "RAS Blockers (ACEi/ARBs)": {
