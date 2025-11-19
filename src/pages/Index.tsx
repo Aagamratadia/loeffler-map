@@ -1,15 +1,19 @@
 import { useState } from "react";
 import { TreatmentPlansTool } from "@/components/TreatmentPlansTool";
+import { DrugDosingTool } from "@/components/DrugDosingTool";
 import { DrugClassesTool } from "@/components/DrugClassesTool";
 import { PregnancySafetyTool } from "@/components/PregnancySafetyTool";
 import { DrugInteractionsTool } from "@/components/DrugInteractionsTool";
 import { Pill } from "lucide-react";
-type TabType = "treatmentPlans" | "drugClasses" | "pregnancy" | "interactions";
+type TabType = "treatmentPlans" | "drugDosing" | "drugClasses" | "pregnancy" | "interactions";
 const Index = () => {
   const [activeTab, setActiveTab] = useState<TabType>("treatmentPlans");
   const tabs = [{
     id: "treatmentPlans" as TabType,
     label: "Treatment Plans"
+  }, {
+    id: "drugDosing" as TabType,
+    label: "Drug Dosing"
   }, {
     id: "drugClasses" as TabType,
     label: "Antihypertensive Classes"
@@ -51,6 +55,7 @@ const Index = () => {
           {/* Tab Content */}
           <div className="p-6">
             {activeTab === "treatmentPlans" && <TreatmentPlansTool />}
+            {activeTab === "drugDosing" && <DrugDosingTool />}
             {activeTab === "drugClasses" && <DrugClassesTool />}
             {activeTab === "pregnancy" && <PregnancySafetyTool />}
             {activeTab === "interactions" && <DrugInteractionsTool />}

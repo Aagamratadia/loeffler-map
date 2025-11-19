@@ -122,6 +122,62 @@ export const treatmentPlansData = {
   }
 };
 
+// Drug Dosing Data
+export const drugDosingData = {
+  "ACE inhibitor": {
+    "Ramipril": { "initial_dose": "2.5 mg PO OD", "maintenance_dose": "5–10 mg/day", "notes": "Low dose post-MI" },
+    "Lisinopril": { "initial_dose": "2.5–5 mg PO OD", "maintenance_dose": "20–40 mg/day", "notes": "N/A" },
+    "Captopril": { "initial_dose": "6.25 mg PO TID", "maintenance_dose": "12.5–150 mg/day", "notes": "N/A" },
+    "Enalapril": { "initial_dose": "2.5 mg PO BID", "maintenance_dose": "5–40 mg/day", "notes": "N/A" }
+  },
+  "ARB": {
+    "Losartan": { "initial_dose": "50 mg PO daily", "maintenance_dose": "50–100 mg/day", "notes": "N/A" },
+    "Candesartan": { "initial_dose": "8 mg PO daily", "maintenance_dose": "8–32 mg/day", "notes": "N/A" },
+    "Valsartan": { "initial_dose": "80 mg PO daily", "maintenance_dose": "80–320 mg/day", "notes": "N/A" },
+    "Irbesartan": { "initial_dose": "150 mg PO daily", "maintenance_dose": "150–300 mg/day", "notes": "N/A" }
+  },
+  "Thiazide": {
+    "Hydrochlorothiazide": { "initial_dose": "12.5–25 mg PO OD", "maintenance_dose": "12.5–50 mg/day", "notes": "N/A" },
+    "Chlorthalidone": { "initial_dose": "12.5–25 mg PO OD", "maintenance_dose": "25–50 mg/day", "notes": "Long half‑life" },
+    "Bendroflumethiazide": { "initial_dose": "2.5 mg PO OD", "maintenance_dose": "Up to 10 mg/day", "notes": "N/A" },
+    "Indapamide": { "initial_dose": "1.25 mg PO OD", "maintenance_dose": "1.25–5 mg/day", "notes": "MR 1.5 mg OD" }
+  },
+  "Loop diuretic": {
+    "Furosemide": { "initial_dose": "20–40 mg PO BID", "maintenance_dose": "20–160 mg/day", "notes": "Higher divided dosing common" }
+  },
+  "Aldosterone antagonist": {
+    "Spironolactone": { "initial_dose": "12.5–25 mg PO OD", "maintenance_dose": "25–100 mg/day", "notes": "Resistant HTN" },
+    "Eplerenone": { "initial_dose": "25 mg PO daily", "maintenance_dose": "50–100 mg/day", "notes": "N/A" }
+  },
+  "CCB – DHP": {
+    "Amlodipine": { "initial_dose": "2.5–5 mg PO OD", "maintenance_dose": "Up to 10 mg/day", "notes": "Peds included" },
+    "Nifedipine ER": { "initial_dose": "30 mg PO OD", "maintenance_dose": "Up to 120 mg/day", "notes": "Avoid short‑acting" }
+  },
+  "CCB – non‑DHP": {
+    "Diltiazem ER": { "initial_dose": "120 mg/day", "maintenance_dose": "120–360 mg/day", "notes": "N/A" },
+    "Verapamil SR": { "initial_dose": "120–180 mg/day", "maintenance_dose": "120–360 mg/day", "notes": "N/A" }
+  },
+  "Beta-blocker": {
+    "Bisoprolol": { "initial_dose": "2.5–5 mg PO OD", "maintenance_dose": "2.5–10 mg/day", "notes": "N/A" },
+    "Carvedilol": { "initial_dose": "3.125–6.25 mg BID", "maintenance_dose": "6.25–25 mg BID", "notes": "Take with food" },
+    "Nebivolol": { "initial_dose": "5 mg PO OD", "maintenance_dose": "5–40 mg/day", "notes": "N/A" }
+  },
+  "Alpha-blocker": {
+    "Doxazosin": { "initial_dose": "1 mg PO OD", "maintenance_dose": "1–16 mg/day", "notes": "Give at bedtime (first dose)" }
+  },
+  "Centrally acting": {
+    "Clonidine": { "initial_dose": "0.1 mg BID", "maintenance_dose": "0.1–0.8 mg/day", "notes": "Rebound HTN if stopped abruptly" },
+    "Methyldopa": { "initial_dose": "250 mg BID", "maintenance_dose": "500–2000 mg/day", "notes": "Pregnancy safe" }
+  },
+  "Vasodilator": {
+    "Hydralazine": { "initial_dose": "10 mg QID", "maintenance_dose": "Up to 200 mg/day", "notes": "Reflex tachycardia" },
+    "Minoxidil": { "initial_dose": "2.5–5 mg OD", "maintenance_dose": "10–40 mg/day", "notes": "Fluid retention/hirsutism" }
+  },
+  "Renin inhibitor": {
+    "Aliskiren": { "initial_dose": "150 mg PO OD", "maintenance_dose": "150–300 mg/day", "notes": "Avoid with ACEi/ARB" }
+  }
+};
+
 // Drug Classes Data
 export const drugClassesData = {
   "RAS Blockers (ACEi/ARBs)": {
