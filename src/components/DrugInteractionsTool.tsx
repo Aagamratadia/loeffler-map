@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { drugInteractionsData } from "@/data/drugData";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { ChevronDown } from "lucide-react";
+import { logPrediction } from "@/lib/logPrediction";
 
 export const DrugInteractionsTool = () => {
   const [selectedAgentA, setSelectedAgentA] = useState("");
@@ -25,6 +26,19 @@ export const DrugInteractionsTool = () => {
       setResult(data[value as keyof typeof data]);
     }
   };
+
+  useEffect(() => {
+    if (!result || !selectedAgentA || !selectedAgentB) return;
+
+    logPrediction({
+      tool: "drugInteractions",
+      inputs: {
+        agentA: selectedAgentA,
+        agentB: selectedAgentB,
+      },
+      result,
+    });
+  }, [result, selectedAgentA, selectedAgentB]);
 
   return (
     <div className="space-y-6">

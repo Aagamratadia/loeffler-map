@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { drugClassesData } from "@/data/drugData";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { ChevronDown } from "lucide-react";
+import { logPrediction } from "@/lib/logPrediction";
 
 export const DrugClassesTool = () => {
   const [selectedClass, setSelectedClass] = useState("");
@@ -25,6 +26,19 @@ export const DrugClassesTool = () => {
       setResult(data[value as keyof typeof data]);
     }
   };
+
+  useEffect(() => {
+    if (!result || !selectedClass || !selectedCategory) return;
+
+    logPrediction({
+      tool: "drugClasses",
+      inputs: {
+        drugClass: selectedClass,
+        category: selectedCategory,
+      },
+      result,
+    });
+  }, [result, selectedClass, selectedCategory]);
 
   return (
     <div className="space-y-6">

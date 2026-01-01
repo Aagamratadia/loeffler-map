@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { treatmentPlansData } from "@/data/drugData";
+import { logPrediction } from "@/lib/logPrediction";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 
@@ -35,6 +36,19 @@ export const TreatmentPlansTool = () => {
       setResults(null);
     }
   }, [selectedBpDefinition, selectedRiskCategory]);
+
+  useEffect(() => {
+    if (!results || !selectedBpDefinition || !selectedRiskCategory) return;
+
+    logPrediction({
+      tool: "treatmentPlans",
+      inputs: {
+        bpDefinition: selectedBpDefinition,
+        riskCategory: selectedRiskCategory,
+      },
+      result: results,
+    });
+  }, [results, selectedBpDefinition, selectedRiskCategory]);
 
   return (
     <div className="space-y-6">

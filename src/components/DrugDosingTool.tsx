@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { drugDosingData } from "@/data/drugData";
+import { logPrediction } from "@/lib/logPrediction";
 
 export const DrugDosingTool = () => {
   const [selectedClass, setSelectedClass] = useState("");
@@ -29,6 +30,19 @@ export const DrugDosingTool = () => {
   };
 
   const availableAgents = selectedClass ? Object.keys(drugDosingData[selectedClass] || {}) : [];
+
+  useEffect(() => {
+    if (!result || !selectedClass || !selectedAgent) return;
+
+    logPrediction({
+      tool: "drugDosing",
+      inputs: {
+        drugClass: selectedClass,
+        agent: selectedAgent,
+      },
+      result,
+    });
+  }, [result, selectedClass, selectedAgent]);
 
   return (
     <div className="space-y-6">

@@ -54,11 +54,20 @@ npm run dev
 
 This project is built with:
 
-- Vite
+- Next.js (App Router)
 - TypeScript
 - React
 - shadcn-ui
 - Tailwind CSS
+- MongoDB (for prediction logging)
+
+### Environment
+
+Add these variables for local dev and Vercel:
+
+- `MONGODB_URI` (required) – connection string
+- `MONGODB_DB` (optional, default: `loeffler`)
+- `MONGODB_COLLECTION` (optional, default: `predictions`)
 
 ## How can I deploy this project?
 

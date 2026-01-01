@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { pregnancySafetyData } from "@/data/drugData";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { ChevronDown } from "lucide-react";
+import { logPrediction } from "@/lib/logPrediction";
 
 export const PregnancySafetyTool = () => {
   const [selectedAgent, setSelectedAgent] = useState("");
@@ -16,6 +17,16 @@ export const PregnancySafetyTool = () => {
       setResult(pregnancySafetyData[value as keyof typeof pregnancySafetyData]);
     }
   };
+
+  useEffect(() => {
+    if (!result || !selectedAgent) return;
+
+    logPrediction({
+      tool: "pregnancySafety",
+      inputs: { agent: selectedAgent },
+      result,
+    });
+  }, [result, selectedAgent]);
 
   return (
     <div className="space-y-6">
