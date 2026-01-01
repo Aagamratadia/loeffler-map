@@ -23,7 +23,7 @@ export const DrugInteractionsTool = () => {
     setSelectedAgentB(value);
     if (value && selectedAgentA) {
       const data = drugInteractionsData[selectedAgentA as keyof typeof drugInteractionsData];
-      setResult(data[value as keyof typeof data]);
+      setResult(data?.[value as keyof typeof data]);
     }
   };
 

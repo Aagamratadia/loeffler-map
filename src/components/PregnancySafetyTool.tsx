@@ -14,7 +14,8 @@ export const PregnancySafetyTool = () => {
   const handleAgentChange = (value: string) => {
     setSelectedAgent(value);
     if (value) {
-      setResult(pregnancySafetyData[value as keyof typeof pregnancySafetyData]);
+      const data = pregnancySafetyData[value as keyof typeof pregnancySafetyData];
+      setResult(data || null);
     }
   };
 

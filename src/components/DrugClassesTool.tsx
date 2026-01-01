@@ -23,7 +23,7 @@ export const DrugClassesTool = () => {
     setSelectedCategory(value);
     if (value && selectedClass) {
       const data = drugClassesData[selectedClass as keyof typeof drugClassesData];
-      setResult(data[value as keyof typeof data]);
+      setResult(data?.[value as keyof typeof data]);
     }
   };
 
