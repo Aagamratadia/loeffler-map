@@ -22,14 +22,19 @@ export const DrugDosingTool = () => {
     const agent = e.target.value;
     setSelectedAgent(agent);
     
-    if (selectedClass && agent && drugDosingData[selectedClass as keyof typeof drugDosingData]?.[agent as any]) {
-      setResult(drugDosingData[selectedClass as keyof typeof drugDosingData][agent as any]);
+    if (selectedClass && agent) {
+      const classData = drugDosingData[selectedClass as keyof typeof drugDosingData] as any;
+      if (classData?.[agent]) {
+        setResult(classData[agent]);
+      } else {
+        setResult(null);
+      }
     } else {
       setResult(null);
     }
   };
 
-  const availableAgents = selectedClass ? Object.keys(drugDosingData[selectedClass as keyof typeof drugDosingData] || {}) : [];
+  const availableAgents = selectedClass ? Object.keys((drugDosingData[selectedClass as keyof typeof drugDosingData] || {}) as any) : [];
 
   useEffect(() => {
     if (!result || !selectedClass || !selectedAgent) return;
