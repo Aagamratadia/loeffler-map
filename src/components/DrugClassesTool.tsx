@@ -262,6 +262,7 @@ export const DrugClassesTool = () => {
             </div>
           </Card>
         )}
-      </div>
-    );
-  };
+      </Card>
+    </div>
+  );
+};
