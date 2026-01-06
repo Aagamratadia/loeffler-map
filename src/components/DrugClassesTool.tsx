@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { drugClassesData } from "@/data/drugData";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Loader2 } from "lucide-react";
 import { logPrediction } from "@/lib/logPrediction";
 
 export const DrugClassesTool = () => {
@@ -197,8 +197,10 @@ export const DrugClassesTool = () => {
 
         {/* ML Loading State */}
         {loading && (
-          <Card className="p-6 bg-blue-50 border-blue-200">
-            <p className="text-blue-600 font-semibold">🔄 Classifying drugs for patient profile...</p>
+          <Card className="p-8 bg-blue-50 border-blue-200 flex flex-col items-center justify-center">
+            <Loader2 className="h-12 w-12 text-blue-600 mb-4 animate-spin" />
+            <p className="text-blue-600 font-semibold text-center">Classifying drugs for patient profile...</p>
+            <p className="text-blue-500 text-sm text-center mt-2">Analyzing patient data with ML model</p>
           </Card>
         )}
 

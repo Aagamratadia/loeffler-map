@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { drugDosingData } from "@/data/drugData";
 import { logPrediction } from "@/lib/logPrediction";
+import { Loader2 } from "lucide-react";
 
 export const DrugDosingTool = () => {
   const [age, setAge] = useState("");
@@ -208,8 +209,10 @@ export const DrugDosingTool = () => {
       {/* ML Loading State */}
       {loading && (
         <Card className="bg-blue-50 border-blue-200">
-          <CardContent className="pt-6">
-            <p className="text-blue-600 font-semibold">🔄 Computing personalized dosing recommendations...</p>
+          <CardContent className="pt-8 flex flex-col items-center justify-center">
+            <Loader2 className="h-12 w-12 text-blue-600 mb-4 animate-spin" />
+            <p className="text-blue-600 font-semibold text-center">Computing personalized dosing recommendations...</p>
+            <p className="text-blue-500 text-sm text-center mt-2">Analyzing patient data with ML model</p>
           </CardContent>
         </Card>
       )}
