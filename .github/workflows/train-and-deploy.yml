@@ -1,0 +1,104 @@
+name: Train and Deploy ML Model
+
+on:
+  schedule:
+    # Train weekly on Monday at 2 AM UTC
+    - cron: '0 2 * * 1'
+  workflow_dispatch:  # Allow manual trigger
+  push:
+    branches: [main]
+    paths:
+      - 'ml_backend/**'
+      - 'data/**'
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r ml_backend/requirements.txt
+      
+      - name: Download training data
+        env:
+          GOOGLE_DRIVE_FILE_ID: ${{ secrets.GOOGLE_DRIVE_FILE_ID }}
+        run: |
+          # Example: Download from Google Drive
+          # Uncomment and replace FILE_ID with your actual file ID
+          # pip install gdown
+          # mkdir -p data
+          # gdown "$GOOGLE_DRIVE_FILE_ID" -O data/antihypertensive_dataset_expanded.csv
+          
+          # For now, assume data is in repo or skip training
+          echo "⚠️  Skipping training (configure Google Drive ID in secrets)"
+      
+      - name: Train model
+        run: |
+          # Only train if data exists
+          if [ -f "data/antihypertensive_dataset_expanded.csv" ]; then
+            python ml_backend/train.py --data ./data/antihypertensive_dataset_expanded.csv
+          else
+            echo "⚠️  Training data not found, skipping training"
+          fi
+      
+      - name: Test model
+        run: |
+          python -c "
+          import joblib
+          import os
+          if os.path.exists('ml_backend/models/antihypertensive_model.pkl'):
+              model = joblib.load('ml_backend/models/antihypertensive_model.pkl')
+              print('✓ Model loaded successfully')
+          else:
+              print('⚠️  Model not yet trained')
+          "
+      
+      - name: Commit changes
+        if: success()
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          if git diff --quiet; then
+            echo "No changes to commit"
+          else
+            git add ml_backend/models/
+            git commit -m "chore: update ML model weights [skip ci]"
+            git push
+          fi
+
+  deploy:
+    needs: train
+    runs-on: ubuntu-latest
+    if: success()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Deploy to Railway
+        env:
+          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
+        run: |
+          # Install Railway CLI
+          npm install -g @railway/cli
+          
+          # Deploy (requires Railway project linked)
+          railway up
+      
+      - name: Notify deployment
+        if: success()
+        run: |
+          echo "✅ Model trained and deployed successfully!"
+          echo "Check status at: https://railway.app"

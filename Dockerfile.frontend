@@ -1,0 +1,47 @@
+# Multi-stage Dockerfile for Next.js with Python ML integration
+
+# Stage 1: Base image with both Node and Python
+FROM node:18-slim AS base
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    python3-pip \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Stage 2: Install dependencies
+FROM base AS builder
+
+COPY package.json pnpm-lock.yaml ./
+RUN npm install -g pnpm && pnpm install --frozen-lockfile
+
+COPY . .
+
+RUN pnpm build
+
+# Stage 3: Production image
+FROM base
+
+WORKDIR /app
+
+# Install Python ML dependencies
+COPY ml_backend/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy Node modules and built app
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/package.json ./package.json
+
+# Copy Python scripts
+COPY scripts ./scripts
+
+EXPOSE 3000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:3000/health || exit 1
+
+CMD ["npm", "start"]

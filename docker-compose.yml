@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  # Next.js frontend with integrated ML model
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGODB_URI=mongodb://mongo:27017/loeffler
+      - NODE_ENV=development
+    depends_on:
+      - mongo
+    volumes:
+      - ./src:/app/src
+      - ./scripts:/app/scripts
+    command: npm run dev
+
+  # MongoDB for prediction logs
+  mongo:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=loeffler
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
+
+volumes:
+  mongo_data:
