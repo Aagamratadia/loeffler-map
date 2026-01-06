@@ -193,76 +193,76 @@ export const DrugClassesTool = () => {
               </div>
             </div>
           </div>
-        </Card>
+        </div>
+      </Card>
 
-        {/* ML Loading State */}
-        {loading && (
-          <Card className="p-8 bg-blue-50 border-blue-200 flex flex-col items-center justify-center">
+      {/* ML Loading State */}
+      {loading && (
+        <Card className="p-8 bg-blue-50 border-blue-200 flex flex-col items-center justify-center">
             <Loader2 className="h-12 w-12 text-blue-600 mb-4 animate-spin" />
             <p className="text-blue-600 font-semibold text-center">Classifying drugs for patient profile...</p>
             <p className="text-blue-500 text-sm text-center mt-2">Analyzing patient data with ML model</p>
           </Card>
-        )}
+      )}
 
-        {/* ML Error State */}
-        {error && (
-          <Card className="p-6 bg-amber-50 border-amber-200">
-            <p className="text-amber-600 font-semibold">⚠️ {error}</p>
-          </Card>
-        )}
+      {/* ML Error State */}
+      {error && (
+        <Card className="p-6 bg-amber-50 border-amber-200">
+          <p className="text-amber-600 font-semibold">⚠️ {error}</p>
+        </Card>
+      )}
 
-        {/* ML Results */}
-        {mlResults && (
-          <Card className="p-6 bg-green-50 border-green-200 animate-in fade-in duration-300">
-            <h3 className="text-lg font-bold text-green-900 mb-4">✅ ML-Recommended Drug Classes</h3>
-            <div className="space-y-4">
-              {mlResults.preferredDrugs && (
-                <div>
-                  <p className="text-sm font-semibold text-green-900 mb-2">Recommended Drug Classes:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {mlResults.preferredDrugs.map((drug: string) => (
-                      <span key={drug} className="px-3 py-1 bg-green-200 text-green-900 rounded-full text-sm font-medium">
-                        {drug}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {mlResults.contraindicated && (
-                <div>
-                  <p className="text-sm font-semibold text-red-900 mb-2">Avoid These Classes:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {mlResults.contraindicated.map((drug: string) => (
-                      <span key={drug} className="px-3 py-1 bg-red-200 text-red-900 rounded-full text-sm font-medium">
-                        {drug}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </Card>
-        )}
-
-        {/* Standard Lookup Results */}
-        {result && (
-          <Card className="p-6 bg-card border-border shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
-            <h3 className="text-lg font-semibold text-foreground mb-4 pb-2 border-b border-border">
-              Drug Class Information
-            </h3>
-            <div className="space-y-4">
+      {/* ML Results */}
+      {mlResults && (
+        <Card className="p-6 bg-green-50 border-green-200 animate-in fade-in duration-300">
+          <h3 className="text-lg font-bold text-green-900 mb-4">✅ ML-Recommended Drug Classes</h3>
+          <div className="space-y-4">
+            {mlResults.preferredDrugs && (
               <div>
-                <p className="text-sm font-semibold text-muted-foreground mb-1">Specific Indication:</p>
-                <p className="text-foreground leading-relaxed">{result.indication}</p>
+                <p className="text-sm font-semibold text-green-900 mb-2">Recommended Drug Classes:</p>
+                <div className="flex flex-wrap gap-2">
+                  {mlResults.preferredDrugs.map((drug: string) => (
+                    <span key={drug} className="px-3 py-1 bg-green-200 text-green-900 rounded-full text-sm font-medium">
+                      {drug}
+                    </span>
+                  ))}
+                </div>
               </div>
+            )}
+            {mlResults.contraindicated && (
               <div>
-                <p className="text-sm font-semibold text-muted-foreground mb-1">Contraindication / Caution:</p>
-                <p className="text-foreground leading-relaxed">{result.contraindication}</p>
+                <p className="text-sm font-semibold text-red-900 mb-2">Avoid These Classes:</p>
+                <div className="flex flex-wrap gap-2">
+                  {mlResults.contraindicated.map((drug: string) => (
+                    <span key={drug} className="px-3 py-1 bg-red-200 text-red-900 rounded-full text-sm font-medium">
+                      {drug}
+                    </span>
+                  ))}
+                </div>
               </div>
+            )}
+          </div>
+        </Card>
+      )}
+
+      {/* Standard Lookup Results */}
+      {result && (
+        <Card className="p-6 bg-card border-border shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
+          <h3 className="text-lg font-semibold text-foreground mb-4 pb-2 border-b border-border">
+            Drug Class Information
+          </h3>
+          <div className="space-y-4">
+            <div>
+              <p className="text-sm font-semibold text-muted-foreground mb-1">Specific Indication:</p>
+              <p className="text-foreground leading-relaxed">{result.indication}</p>
             </div>
-          </Card>
-        )}
-      </Card>
+            <div>
+              <p className="text-sm font-semibold text-muted-foreground mb-1">Contraindication / Caution:</p>
+              <p className="text-foreground leading-relaxed">{result.contraindication}</p>
+            </div>
+          </div>
+        </Card>
+      )}
     </div>
   );
 };
