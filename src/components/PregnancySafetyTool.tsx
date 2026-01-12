@@ -2,10 +2,14 @@ import { useEffect, useState } from "react";
 import { pregnancySafetyData } from "@/data/drugData";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { PregnancySafetyToolProps } from "@/app/types/props";
 import { ChevronDown } from "lucide-react";
 import { logPrediction } from "@/lib/logPrediction";
 
-export const PregnancySafetyTool = () => {
+export const PregnancySafetyTool = ({
+  onResultsUpdate,
+  isDisabled,
+}: PregnancySafetyToolProps) => {
   const [selectedAgent, setSelectedAgent] = useState("");
   const [result, setResult] = useState<any>(null);
 

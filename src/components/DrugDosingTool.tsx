@@ -3,18 +3,52 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { drugDosingData } from "@/data/drugData";
 import { logPrediction } from "@/lib/logPrediction";
+import { DrugDosingToolProps } from "@/app/types/props";
 import { Loader2 } from "lucide-react";
 
-export const DrugDosingTool = () => {
-  const [age, setAge] = useState("");
-  const [sysBloodPressure, setSysBloodPressure] = useState("");
-  const [diaBloodPressure, setDiaBloodPressure] = useState("");
+export const DrugDosingTool = ({
+  prefilledAge,
+  prefilledSbp,
+  prefilledDbp,
+  prefilledKidneyStatus,
+  onResultsUpdate,
+  isDisabled,
+}: DrugDosingToolProps) => {
+  const [age, setAge] = useState(prefilledAge ?? "");
+  const [sysBloodPressure, setSysBloodPressure] = useState(prefilledSbp ?? "");
+  const [diaBloodPressure, setDiaBloodPressure] = useState(prefilledDbp ?? "");
+  const [kidneyStatus, setKidneyStatus] = useState(prefilledKidneyStatus ?? "normal");
   const [selectedClass, setSelectedClass] = useState("");
   const [selectedAgent, setSelectedAgent] = useState("");
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [mlResults, setMlResults] = useState<any>(null);
+
+  // Sync prefilled props to state
+  useEffect(() => {
+    if (prefilledAge !== undefined && prefilledAge !== age) {
+      setAge(prefilledAge);
+    }
+  }, [prefilledAge, age]);
+
+  useEffect(() => {
+    if (prefilledSbp !== undefined && prefilledSbp !== sysBloodPressure) {
+      setSysBloodPressure(prefilledSbp);
+    }
+  }, [prefilledSbp, sysBloodPressure]);
+
+  useEffect(() => {
+    if (prefilledDbp !== undefined && prefilledDbp !== diaBloodPressure) {
+      setDiaBloodPressure(prefilledDbp);
+    }
+  }, [prefilledDbp, diaBloodPressure]);
+
+  useEffect(() => {
+    if (prefilledKidneyStatus !== undefined && prefilledKidneyStatus !== kidneyStatus) {
+      setKidneyStatus(prefilledKidneyStatus);
+    }
+  }, [prefilledKidneyStatus, kidneyStatus]);
 
   const drugClasses = Object.keys(drugDosingData);
 
@@ -57,10 +91,12 @@ export const DrugDosingTool = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             tool: "drug-dosing",
+            requestType: "drug_dosing",
             inputs: {
-              age: parseFloat(age),
-              init_sbp: parseFloat(sysBloodPressure),
-              init_dbp: parseFloat(diaBloodPressure),
+              age: age,
+              init_sbp: sysBloodPressure,
+              init_dbp: diaBloodPressure,
+              kidney_status: kidneyStatus,
             },
           }),
         });
@@ -71,11 +107,15 @@ export const DrugDosingTool = () => {
         await new Promise(resolve => setTimeout(resolve, 2000));
         
         if (data.ok && data.result) {
-          setMlResults({
+          const resultsObj = {
             preferredDrugs: data.result.preferred_drugs || [],
             contraindicated: data.result.contraindicated_drugs || [],
             matchDistance: data.result.match_distance,
-          });
+          };
+          setMlResults(resultsObj);
+          if (onResultsUpdate) {
+            onResultsUpdate(resultsObj);
+          }
         } else {
           setError(data.error || "No prediction found");
           setMlResults(null);
@@ -90,7 +130,7 @@ export const DrugDosingTool = () => {
     };
 
     callMLModel();
-  }, [age, sysBloodPressure, diaBloodPressure]);
+  }, [age, sysBloodPressure, diaBloodPressure, kidneyStatus, onResultsUpdate]);
 
   const availableAgents = selectedClass ? Object.keys((drugDosingData[selectedClass as keyof typeof drugDosingData] || {}) as any) : [];
 
@@ -131,7 +171,8 @@ export const DrugDosingTool = () => {
                 value={age}
                 onChange={(e) => setAge(e.target.value)}
                 placeholder="Enter age"
-                className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                disabled={isDisabled}
+                className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -146,7 +187,8 @@ export const DrugDosingTool = () => {
                   value={sysBloodPressure}
                   onChange={(e) => setSysBloodPressure(e.target.value)}
                   placeholder="Systolic"
-                  className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                  disabled={isDisabled}
+                  className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
               <div className="space-y-2">
@@ -159,9 +201,26 @@ export const DrugDosingTool = () => {
                   value={diaBloodPressure}
                   onChange={(e) => setDiaBloodPressure(e.target.value)}
                   placeholder="Diastolic"
-                  className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                  disabled={isDisabled}
+                  className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="kidneyStatus" className="text-sm font-semibold">Kidney Status</Label>
+              <select
+                id="kidneyStatus"
+                value={kidneyStatus}
+                onChange={(e) => setKidneyStatus(e.target.value as "normal" | "mild" | "moderate" | "severe")}
+                disabled={isDisabled}
+                className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <option value="normal">Normal</option>
+                <option value="mild">Mild CKD</option>
+                <option value="moderate">Moderate CKD</option>
+                <option value="severe">Severe CKD</option>
+              </select>
             </div>
           </div>
 

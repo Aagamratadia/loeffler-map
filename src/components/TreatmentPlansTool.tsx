@@ -1,20 +1,47 @@
 import { useState, useEffect } from "react";
 import { treatmentPlansData } from "@/data/drugData";
 import { logPrediction } from "@/lib/logPrediction";
+import { TreatmentPlansToolProps } from "@/app/types/props";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Loader2 } from "lucide-react";
 
-export const TreatmentPlansTool = () => {
-  const [age, setAge] = useState("");
+export const TreatmentPlansTool = ({
+  prefilledAge,
+  prefilledSbp,
+  prefilledDbp,
+  prefilledBpGrade,
+  onResultsUpdate,
+  isDisabled,
+}: TreatmentPlansToolProps) => {
+  const [age, setAge] = useState(prefilledAge ?? "");
   const [selectedBpDefinition, setSelectedBpDefinition] = useState("");
   const [selectedRiskCategory, setSelectedRiskCategory] = useState("");
-  const [sysBloodPressure, setSysBloodPressure] = useState("");
-  const [diaBloodPressure, setDiaBloodPressure] = useState("");
+  const [sysBloodPressure, setSysBloodPressure] = useState(prefilledSbp ?? "");
+  const [diaBloodPressure, setDiaBloodPressure] = useState(prefilledDbp ?? "");
   const [availableRiskCategories, setAvailableRiskCategories] = useState<string[]>([]);
   const [results, setResults] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Sync prefilled props to state
+  useEffect(() => {
+    if (prefilledAge !== undefined && prefilledAge !== age) {
+      setAge(prefilledAge);
+    }
+  }, [prefilledAge, age]);
+
+  useEffect(() => {
+    if (prefilledSbp !== undefined && prefilledSbp !== sysBloodPressure) {
+      setSysBloodPressure(prefilledSbp);
+    }
+  }, [prefilledSbp, sysBloodPressure]);
+
+  useEffect(() => {
+    if (prefilledDbp !== undefined && prefilledDbp !== diaBloodPressure) {
+      setDiaBloodPressure(prefilledDbp);
+    }
+  }, [prefilledDbp, diaBloodPressure]);
 
   const bpDefinitions = Object.keys(treatmentPlansData);
 
@@ -47,10 +74,11 @@ export const TreatmentPlansTool = () => {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             tool: "antihypertensive-recommender",
+            requestType: "treatment_plan",
             inputs: {
-              age: parseFloat(age),
-              init_sbp: parseFloat(sysBloodPressure),
-              init_dbp: parseFloat(diaBloodPressure),
+              age: age,
+              init_sbp: sysBloodPressure,
+              init_dbp: diaBloodPressure,
             },
           }),
         });
@@ -61,11 +89,15 @@ export const TreatmentPlansTool = () => {
         await new Promise(resolve => setTimeout(resolve, 2000));
         
         if (data.ok && data.result) {
-          setResults({
+          const resultsObj = {
             preferredDrugs: data.result.preferred_drugs || [],
             contraindicated: data.result.contraindicated_drugs || [],
             matchDistance: data.result.match_distance,
-          });
+          };
+          setResults(resultsObj);
+          if (onResultsUpdate) {
+            onResultsUpdate(resultsObj);
+          }
         } else {
           setError(data.error || "No prediction found");
           setResults(null);
@@ -80,7 +112,7 @@ export const TreatmentPlansTool = () => {
     };
 
     callMLModel();
-  }, [age, sysBloodPressure, diaBloodPressure]);
+  }, [age, sysBloodPressure, diaBloodPressure, onResultsUpdate]);
 
   // Also try static lookup if ML fails
   useEffect(() => {
@@ -130,7 +162,8 @@ export const TreatmentPlansTool = () => {
             value={age}
             onChange={(e) => setAge(e.target.value)}
             placeholder="Enter age"
-            className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+            disabled={isDisabled}
+            className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           />
         </div>
 
@@ -147,7 +180,8 @@ export const TreatmentPlansTool = () => {
             value={sysBloodPressure}
             onChange={(e) => setSysBloodPressure(e.target.value)}
             placeholder="Enter systolic BP"
-            className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+            disabled={isDisabled}
+            className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           />
         </div>
 
@@ -164,7 +198,8 @@ export const TreatmentPlansTool = () => {
             value={diaBloodPressure}
             onChange={(e) => setDiaBloodPressure(e.target.value)}
             placeholder="Enter diastolic BP"
-            className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+            disabled={isDisabled}
+            className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           />
         </div>
 

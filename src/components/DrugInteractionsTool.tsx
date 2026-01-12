@@ -4,17 +4,31 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { ChevronDown, Loader2 } from "lucide-react";
 import { logPrediction } from "@/lib/logPrediction";
+import { DrugInteractionsToolProps } from "@/app/types/props";
 
-export const DrugInteractionsTool = () => {
-  const [age, setAge] = useState("");
-  const [sysBloodPressure, setSysBloodPressure] = useState("");
-  const [diaBloodPressure, setDiaBloodPressure] = useState("");
+export const DrugInteractionsTool = ({
+  prefilledAge,
+  prefilledSbp,
+  prefilledDbp,
+  onResultsUpdate,
+  isDisabled = false,
+}: DrugInteractionsToolProps) => {
+  const [age, setAge] = useState(prefilledAge ?? "");
+  const [sysBloodPressure, setSysBloodPressure] = useState(prefilledSbp ?? "");
+  const [diaBloodPressure, setDiaBloodPressure] = useState(prefilledDbp ?? "");
   const [selectedAgentA, setSelectedAgentA] = useState("");
   const [selectedAgentB, setSelectedAgentB] = useState("");
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [mlResults, setMlResults] = useState<any>(null);
+
+  // Sync prefilled props to internal state
+  useEffect(() => {
+    if (prefilledAge !== undefined) setAge(prefilledAge);
+    if (prefilledSbp !== undefined) setSysBloodPressure(prefilledSbp);
+    if (prefilledDbp !== undefined) setDiaBloodPressure(prefilledDbp);
+  }, [prefilledAge, prefilledSbp, prefilledDbp]);
 
   const agentsA = Object.keys(drugInteractionsData);
   const agentsB = selectedAgentA ? Object.keys(drugInteractionsData[selectedAgentA as keyof typeof drugInteractionsData]) : [];
@@ -50,9 +64,9 @@ export const DrugInteractionsTool = () => {
           body: JSON.stringify({
             tool: "antihypertensive-recommender",
             inputs: {
-              age: parseFloat(age),
-              init_sbp: parseFloat(sysBloodPressure),
-              init_dbp: parseFloat(diaBloodPressure),
+              age: age,
+              init_sbp: sysBloodPressure,
+              init_dbp: diaBloodPressure,
             },
           }),
         });
@@ -63,11 +77,15 @@ export const DrugInteractionsTool = () => {
         await new Promise(resolve => setTimeout(resolve, 2000));
         
         if (data.ok && data.result) {
-          setMlResults({
+          const resultsObj = {
             preferredDrugs: data.result.preferred_drugs || [],
             contraindicated: data.result.contraindicated_drugs || [],
             matchDistance: data.result.match_distance,
-          });
+          };
+          setMlResults(resultsObj);
+          if (onResultsUpdate) {
+            onResultsUpdate(resultsObj);
+          }
         } else {
           setError(data.error || "No prediction found");
           setMlResults(null);
@@ -82,7 +100,7 @@ export const DrugInteractionsTool = () => {
     };
 
     callMLModel();
-  }, [age, sysBloodPressure, diaBloodPressure]);
+  }, [age, sysBloodPressure, diaBloodPressure, onResultsUpdate]);
 
   useEffect(() => {
     if (!result || !selectedAgentA || !selectedAgentB) return;
@@ -113,9 +131,10 @@ export const DrugInteractionsTool = () => {
                 min="0"
                 max="120"
                 value={age}
-                onChange={(e) => setAge(e.target.value)}
+                onChange={(e) => setAge(e.target.value === "" ? "" : Number(e.target.value))}
                 placeholder="Enter age"
-                className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                disabled={isDisabled}
+                className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -128,9 +147,10 @@ export const DrugInteractionsTool = () => {
                   min="60"
                   max="250"
                   value={sysBloodPressure}
-                  onChange={(e) => setSysBloodPressure(e.target.value)}
+                  onChange={(e) => setSysBloodPressure(e.target.value === "" ? "" : Number(e.target.value))}
                   placeholder="Systolic"
-                  className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                  disabled={isDisabled}
+                  className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
               <div className="space-y-2">
@@ -141,9 +161,10 @@ export const DrugInteractionsTool = () => {
                   min="30"
                   max="150"
                   value={diaBloodPressure}
-                  onChange={(e) => setDiaBloodPressure(e.target.value)}
+                  onChange={(e) => setDiaBloodPressure(e.target.value === "" ? "" : Number(e.target.value))}
                   placeholder="Diastolic"
-                  className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all"
+                  disabled={isDisabled}
+                  className="w-full px-4 py-3 rounded-lg border border-input bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-primary transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 />
               </div>
             </div>

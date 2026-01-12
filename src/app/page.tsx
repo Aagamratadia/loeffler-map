@@ -1,52 +1,61 @@
 "use client";
 
-import { useState } from "react";
-import { DrugClassesTool } from "@/components/DrugClassesTool";
-import { DrugDosingTool } from "@/components/DrugDosingTool";
-import { DrugInteractionsTool } from "@/components/DrugInteractionsTool";
-import { PregnancySafetyTool } from "@/components/PregnancySafetyTool";
-import { TreatmentPlansTool } from "@/components/TreatmentPlansTool";
-import { HeartPulse, History, Activity, Beaker, Baby, AlertTriangle, FileText } from "lucide-react";
+import { useState, useMemo } from "react";
+import { PatientDetailsForm } from "@/components/assessment/PatientDetailsForm";
+import { ClinicalProfileForm } from "@/components/assessment/ClinicalProfileForm";
+import { PregnancySection } from "@/components/assessment/PregnancySection";
+import { DrugInteractionSection } from "@/components/assessment/DrugInteractionSection";
+import { ClinicalProtocolsSection } from "@/components/assessment/ClinicalProtocolsSection";
+import { PatientAssessment } from "@/app/types/assessment";
+import { calculateBPGrade, validateAssessment, canRunMLModels, getAssessmentStatus } from "@/lib/medical-calcs";
+import { HeartPulse, History, AlertTriangle, CheckCircle2, AlertCircle } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Card } from "@/components/ui/card";
 import Link from "next/link";
 
-type TabType = "treatmentPlans" | "drugDosing" | "drugClasses" | "pregnancy" | "interactions";
-
 const HomePage = () => {
-  const [activeTab, setActiveTab] = useState<TabType>("treatmentPlans");
-  const tabs = [
-    { 
-      id: "treatmentPlans" as TabType, 
-      label: "Treatment Plans",
-      icon: FileText,
-      description: "Evidence-based treatment protocols"
+  // Lifted state: Parent owns all patient assessment data
+  const [assessment, setAssessment] = useState<PatientAssessment>({
+    name: "",
+    aadhar: "",
+    mobile: "",
+    age: "",
+    sbp: "",
+    dbp: "",
+    comorbidities: {
+      diabetes: false,
+      heartCondition: false,
+      ckd: false,
+      other: false,
     },
-    { 
-      id: "drugDosing" as TabType, 
-      label: "Drug Dosing",
-      icon: Beaker,
-      description: "Accurate dosing guidelines"
-    },
-    { 
-      id: "drugClasses" as TabType, 
-      label: "Drug Classes",
-      icon: Activity,
-      description: "Antihypertensive classifications"
-    },
-    { 
-      id: "pregnancy" as TabType, 
-      label: "Pregnancy Safety",
-      icon: Baby,
-      description: "Maternal-fetal considerations"
-    },
-    { 
-      id: "interactions" as TabType, 
-      label: "Drug Interactions",
-      icon: AlertTriangle,
-      description: "Important drug combinations"
-    },
-  ];
+    isPregnant: "",
+    takingOtherDrugs: "",
+  });
 
-  const activeTabData = tabs.find(tab => tab.id === activeTab);
+  // Memoize BP grade calculation
+  const bpGrade = useMemo(() => {
+    if (assessment.sbp !== "" && assessment.dbp !== "") {
+      return calculateBPGrade(
+        assessment.sbp,
+        assessment.dbp
+      );
+    }
+    return null;
+  }, [assessment.sbp, assessment.dbp]);
+
+  // Memoize ML readiness check
+  const mlReady = useMemo(() => {
+    return canRunMLModels(assessment);
+  }, [assessment.age, assessment.sbp, assessment.dbp]);
+
+  // Memoize validation status
+  const validationStatus = useMemo(() => {
+    return validateAssessment(assessment);
+  }, [assessment]);
+  // Memoize assessment status text
+  const assessmentStatus = useMemo(() => {
+    return getAssessmentStatus(assessment);
+  }, [assessment]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
@@ -59,10 +68,10 @@ const HomePage = () => {
               </div>
               <div>
                 <h1 className="text-xl md:text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
-                  Loeffler
+                  Loeffler Assessment
                 </h1>
                 <p className="text-xs md:text-sm text-slate-600 hidden sm:block">
-                  Clinical reference for antihypertensive medications
+                  Comprehensive hypertension management evaluation
                 </p>
               </div>
             </div>
@@ -78,76 +87,168 @@ const HomePage = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-6 md:py-10 max-w-7xl">
-        {/* Tool Selection Cards */}
+      <main className="container mx-auto px-4 py-6 md:py-10 max-w-6xl">
+        {/* Assessment Progress Indicator */}
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-slate-800 mb-2">Select a Tool</h2>
-          <p className="text-slate-600 mb-6">Choose from our comprehensive medical reference tools</p>
-          
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`group relative p-4 rounded-xl border-2 transition-all duration-200 text-left ${
-                    isActive
-                      ? "border-blue-500 bg-blue-50 shadow-lg shadow-blue-100"
-                      : "border-slate-200 bg-white hover:border-blue-300 hover:shadow-md"
-                  }`}
-                >
-                  <div className={`inline-flex p-2 rounded-lg mb-3 ${
-                    isActive ? "bg-blue-500" : "bg-slate-100 group-hover:bg-blue-100"
-                  }`}>
-                    <Icon className={`h-5 w-5 ${
-                      isActive ? "text-white" : "text-slate-600 group-hover:text-blue-600"
-                    }`} />
-                  </div>
-                  <h3 className={`font-semibold text-sm mb-1 ${
-                    isActive ? "text-blue-900" : "text-slate-800"
-                  }`}>
-                    {tab.label}
-                  </h3>
-                  <p className={`text-xs ${
-                    isActive ? "text-blue-700" : "text-slate-600"
-                  }`}>
-                    {tab.description}
-                  </p>
-                  {isActive && (
-                    <div className="absolute top-2 right-2">
-                      <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                    </div>
-                  )}
-                </button>
-              );
-            })}
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold text-slate-800">Patient Assessment</h2>
+            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
+              mlReady 
+                ? "bg-green-100 text-green-800" 
+                : "bg-amber-100 text-amber-800"
+            }`}>
+              {mlReady ? (
+                <>
+                  <CheckCircle2 className="h-4 w-4" />
+                  Ready for ML Analysis
+                </>
+              ) : (
+                <>
+                  <AlertCircle className="h-4 w-4" />
+                  Complete vital signs
+                </>
+              )}
+            </div>
           </div>
+          <p className="text-slate-600">{assessmentStatus}</p>
         </div>
 
-        {/* Active Tool Content */}
-        <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-          <div className="bg-gradient-to-r from-blue-500 to-blue-600 px-6 py-4">
-            {activeTabData && (
-              <div className="flex items-center gap-3 text-white">
-                <activeTabData.icon className="h-6 w-6" />
-                <div>
-                  <h2 className="text-xl font-bold">{activeTabData.label}</h2>
-                  <p className="text-sm text-blue-100">{activeTabData.description}</p>
-                </div>
-              </div>
+        {/* Section 1: Patient Details */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-semibold text-sm">
+              1
+            </div>
+            <h3 className="text-xl font-bold text-slate-800">Patient Details & Vital Signs</h3>
+            {validationStatus.demographics && (
+              <CheckCircle2 className="h-5 w-5 text-green-500 ml-auto" />
             )}
           </div>
-
-          <div className="p-6 md:p-8">
-            {activeTab === "treatmentPlans" && <TreatmentPlansTool />}
-            {activeTab === "drugDosing" && <DrugDosingTool />}
-            {activeTab === "drugClasses" && <DrugClassesTool />}
-            {activeTab === "pregnancy" && <PregnancySafetyTool />}
-            {activeTab === "interactions" && <DrugInteractionsTool />}
-          </div>
+          <PatientDetailsForm
+            name={assessment.name}
+            aadhar={assessment.aadhar}
+            mobile={assessment.mobile}
+            age={assessment.age}
+            sbp={assessment.sbp}
+            dbp={assessment.dbp}
+            bpGrade={bpGrade}
+            onUpdate={(field: string, value: any) => {
+              setAssessment(prev => ({
+                ...prev,
+                [field]: value,
+              }));
+            }}
+          />
         </div>
+
+        {/* Section 2: Clinical Profile */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-semibold text-sm">
+              2
+            </div>
+            <h3 className="text-xl font-bold text-slate-800">Clinical Profile</h3>
+            {validationStatus.comorbidities && (
+              <CheckCircle2 className="h-5 w-5 text-green-500 ml-auto" />
+            )}
+          </div>
+          <ClinicalProfileForm
+            comorbidities={assessment.comorbidities}
+            onUpdate={(comorbidities) => {
+              setAssessment(prev => ({
+                ...prev,
+                comorbidities,
+              }));
+            }}
+          />
+        </div>
+
+        {/* Section 3: Pregnancy Safety (Conditional) */}
+        {assessment.age && parseFloat(assessment.age.toString()) < 50 && (
+          <div className="mb-8">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-semibold text-sm">
+                3
+              </div>
+              <h3 className="text-xl font-bold text-slate-800">Pregnancy Considerations</h3>
+              {validationStatus.pregnancy && (
+                <CheckCircle2 className="h-5 w-5 text-green-500 ml-auto" />
+              )}
+            </div>
+            <PregnancySection
+              isPregnant={assessment.isPregnant}
+              patientAge={assessment.age}
+              onUpdate={(value: string) => {
+                setAssessment(prev => ({
+                  ...prev,
+                  isPregnant: value as "yes" | "no" | "",
+                }));
+              }}
+            />
+          </div>
+        )}
+
+        {/* Section 4: Drug Interactions (Conditional on mlReady) */}
+        {mlReady && (
+          <div className="mb-8">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-semibold text-sm">
+                4
+              </div>
+              <h3 className="text-xl font-bold text-slate-800">Drug Interaction Assessment</h3>
+            </div>
+            <DrugInteractionSection
+              takingOtherDrugs={assessment.takingOtherDrugs}
+              age={assessment.age}
+              sbp={assessment.sbp}
+              dbp={assessment.dbp}
+              mlReady={mlReady}
+              onUpdate={(value: string) => {
+                setAssessment(prev => ({
+                  ...prev,
+                  takingOtherDrugs: value as "yes" | "no" | "",
+                }));
+              }}
+            />
+          </div>
+        )}
+
+        {/* Section 5: Clinical Protocols (ML-Generated) */}
+        {mlReady && (
+          <div className="mb-8">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-semibold text-sm">
+                5
+              </div>
+              <h3 className="text-xl font-bold text-slate-800">AI-Generated Clinical Protocols</h3>
+            </div>
+            <Alert className="mb-4 bg-blue-50 border-blue-200">
+              <AlertTriangle className="h-4 w-4 text-blue-600" />
+              <AlertDescription className="text-blue-800">
+                Sections 5.1, 5.2, and 5.3 are automatically generated based on patient vitals and will populate once complete vital signs are provided.
+              </AlertDescription>
+            </Alert>
+            <ClinicalProtocolsSection
+              age={assessment.age}
+              sbp={assessment.sbp}
+              dbp={assessment.dbp}
+              bpGrade={bpGrade}
+              isPregnant={assessment.isPregnant}
+              comorbidities={assessment.comorbidities}
+            />
+          </div>
+        )}
+
+        {/* Not Ready State */}
+        {!mlReady && (
+          <Card className="p-8 bg-amber-50 border-amber-200 text-center">
+            <AlertCircle className="h-12 w-12 text-amber-600 mx-auto mb-4" />
+            <p className="text-lg font-semibold text-amber-900 mb-2">Complete Patient Vitals to Proceed</p>
+            <p className="text-amber-800">
+              Please enter age and blood pressure readings in Section 1 to unlock AI-powered clinical protocols and drug interaction analysis.
+            </p>
+          </Card>
+        )}
 
         <footer className="mt-10 p-6 bg-amber-50 border border-amber-200 rounded-xl">
           <div className="flex items-start gap-3">
