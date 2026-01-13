@@ -2,8 +2,9 @@ import { useEffect, useState } from "react";
 import { pregnancySafetyData } from "@/data/drugData";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { PregnancySafetyToolProps } from "@/app/types/props";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, SaveIcon, Check } from "lucide-react";
 import { logPrediction } from "@/lib/logPrediction";
 
 export const PregnancySafetyTool = ({
@@ -12,6 +13,8 @@ export const PregnancySafetyTool = ({
 }: PregnancySafetyToolProps) => {
   const [selectedAgent, setSelectedAgent] = useState("");
   const [result, setResult] = useState<any>(null);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   const agents = Object.keys(pregnancySafetyData);
 
@@ -20,18 +23,34 @@ export const PregnancySafetyTool = ({
     if (value) {
       const data = pregnancySafetyData[value as keyof typeof pregnancySafetyData];
       setResult(data || null);
+      setSaved(false);
     }
   };
 
   useEffect(() => {
     if (!result || !selectedAgent) return;
 
-    logPrediction({
-      tool: "pregnancySafety",
-      inputs: { agent: selectedAgent },
-      result,
-    });
+    // Don't auto-save - wait for manual save button click
   }, [result, selectedAgent]);
+
+  const handleSave = async () => {
+    if (!result || !selectedAgent) return;
+    setSaving(true);
+    
+    try {
+      await logPrediction({
+        tool: "pregnancySafety",
+        inputs: { agent: selectedAgent },
+        result,
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (error) {
+      console.error("Failed to save", error);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -59,9 +78,30 @@ export const PregnancySafetyTool = ({
 
       {result && (
         <Card className="p-6 bg-card border-border shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
-          <h3 className="text-lg font-semibold text-foreground mb-4 pb-2 border-b border-border">
-            Results
-          </h3>
+          <div className="flex items-center justify-between mb-4 pb-2 border-b border-border">
+            <h3 className="text-lg font-semibold text-foreground">
+              Results
+            </h3>
+            <Button
+              onClick={handleSave}
+              disabled={saving || saved}
+              size="sm"
+              variant="default"
+              className="flex items-center gap-2"
+            >
+              {saved ? (
+                <>
+                  <Check className="h-4 w-4" />
+                  Saved
+                </>
+              ) : (
+                <>
+                  <SaveIcon className="h-4 w-4" />
+                  Save Result
+                </>
+              )}
+            </Button>
+          </div>
           <div className="space-y-4">
             {result.use_case !== "N/A" && (
               <div>
@@ -89,7 +129,7 @@ export const PregnancySafetyTool = ({
             )}
           </div>
         </Card>
-      )}
+      )}}
     </div>
   );
 };

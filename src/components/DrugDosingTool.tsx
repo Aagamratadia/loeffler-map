@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { drugDosingData } from "@/data/drugData";
 import { logPrediction } from "@/lib/logPrediction";
 import { DrugDosingToolProps } from "@/app/types/props";
-import { Loader2 } from "lucide-react";
+import { Loader2, SaveIcon, Check } from "lucide-react";
 
 export const DrugDosingTool = ({
   prefilledAge,
   prefilledSbp,
   prefilledDbp,
   prefilledKidneyStatus,
+  patientAssessment,
   onResultsUpdate,
   isDisabled,
 }: DrugDosingToolProps) => {
@@ -24,6 +26,8 @@ export const DrugDosingTool = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [mlResults, setMlResults] = useState<any>(null);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   // Sync prefilled props to state
   useEffect(() => {
@@ -57,6 +61,7 @@ export const DrugDosingTool = ({
     setSelectedClass(newClass);
     setSelectedAgent("");
     setResult(null);
+    setSaved(false);
   };
 
   const handleAgentChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -67,6 +72,7 @@ export const DrugDosingTool = ({
       const classData = drugDosingData[selectedClass as keyof typeof drugDosingData] as any;
       if (classData?.[agent]) {
         setResult(classData[agent]);
+        setSaved(false);
       } else {
         setResult(null);
       }
@@ -137,15 +143,44 @@ export const DrugDosingTool = ({
   useEffect(() => {
     if (!result || !selectedClass || !selectedAgent) return;
 
-    logPrediction({
-      tool: "drugDosing",
-      inputs: {
-        drugClass: selectedClass,
-        agent: selectedAgent,
-      },
-      result,
-    });
+    // Don't auto-save - wait for manual save button click
   }, [result, selectedClass, selectedAgent]);
+
+  const handleSave = async () => {
+    if (!result || !selectedClass || !selectedAgent) return;
+    setSaving(true);
+    
+    try {
+      await logPrediction({
+        tool: "drugDosing",
+        inputs: {
+          drugClass: selectedClass,
+          agent: selectedAgent,
+        },
+        result,
+        metadata: {
+          patientDetails: patientAssessment ? {
+            name: patientAssessment.name,
+            aadhar: patientAssessment.aadhar,
+            mobile: patientAssessment.mobile,
+            dateOfBirth: patientAssessment.dateOfBirth,
+            age: patientAssessment.age,
+            sbp: patientAssessment.sbp,
+            dbp: patientAssessment.dbp,
+            comorbidities: patientAssessment.comorbidities,
+            isPregnant: patientAssessment.isPregnant,
+            takingOtherDrugs: patientAssessment.takingOtherDrugs,
+          } : undefined,
+        },
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (error) {
+      console.error("Failed to save", error);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -324,7 +359,28 @@ export const DrugDosingTool = ({
       {result && (
         <Card className="animate-in fade-in-50 duration-300">
           <CardHeader>
-            <CardTitle className="text-primary">Dosing Information</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-primary">Dosing Information</CardTitle>
+              <Button
+                onClick={handleSave}
+                disabled={saving || saved}
+                size="sm"
+                variant="default"
+                className="flex items-center gap-2"
+              >
+                {saved ? (
+                  <>
+                    <Check className="h-4 w-4" />
+                    Saved
+                  </>
+                ) : (
+                  <>
+                    <SaveIcon className="h-4 w-4" />
+                    Save Result
+                  </>
+                )}
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -345,7 +401,7 @@ export const DrugDosingTool = ({
             )}
           </CardContent>
         </Card>
-      )}
+      )}}
     </div>
   );
 };

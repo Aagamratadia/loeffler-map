@@ -19,6 +19,7 @@ const HomePage = () => {
     name: "",
     aadhar: "",
     mobile: "",
+    dateOfBirth: "",
     age: "",
     sbp: "",
     dbp: "",
@@ -129,6 +130,7 @@ const HomePage = () => {
             aadhar={assessment.aadhar}
             mobile={assessment.mobile}
             age={assessment.age}
+            dateOfBirth={assessment.dateOfBirth}
             sbp={assessment.sbp}
             dbp={assessment.dbp}
             bpGrade={bpGrade}
@@ -235,6 +237,7 @@ const HomePage = () => {
               bpGrade={bpGrade}
               isPregnant={assessment.isPregnant}
               comorbidities={assessment.comorbidities}
+              assessment={assessment}
             />
           </div>
         )}

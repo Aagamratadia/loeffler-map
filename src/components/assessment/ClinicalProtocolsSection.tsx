@@ -14,6 +14,7 @@ interface ClinicalProtocolsSectionProps {
   dbp?: number | "";
   comorbidities: PatientAssessment["comorbidities"];
   isPregnant?: string;
+  assessment?: PatientAssessment;
 }
 
 export const ClinicalProtocolsSection = ({
@@ -23,6 +24,7 @@ export const ClinicalProtocolsSection = ({
   dbp,
   comorbidities,
   isPregnant,
+  assessment,
 }: ClinicalProtocolsSectionProps) => {
   // Only show this section if minimum vitals are available
   const isVisible = age !== "" && sbp !== "" && dbp !== "";
@@ -64,6 +66,7 @@ export const ClinicalProtocolsSection = ({
               prefilledSbp={sbp !== undefined ? String(sbp) : undefined}
               prefilledDbp={dbp !== undefined ? String(dbp) : undefined}
               prefilledBpGrade={bpGrade}
+              patientAssessment={assessment}
               isDisabled={true}
             />
           </CardContent>
@@ -88,6 +91,7 @@ export const ClinicalProtocolsSection = ({
               prefilledSbp={sbp !== undefined ? String(sbp) : undefined}
               prefilledDbp={dbp !== undefined ? String(dbp) : undefined}
               prefilledKidneyStatus={comorbidities.ckd ? "severe" : "normal"}
+              patientAssessment={assessment}
               isDisabled={true}
             />
           </CardContent>
@@ -112,6 +116,7 @@ export const ClinicalProtocolsSection = ({
             prefilledAge={age !== undefined ? String(age) : undefined}
             prefilledSbp={sbp !== undefined ? String(sbp) : undefined}
             prefilledDbp={dbp !== undefined ? String(dbp) : undefined}
+            patientAssessment={assessment}
             isDisabled={true}
           />
         </CardContent>

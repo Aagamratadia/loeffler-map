@@ -4,13 +4,15 @@ import { logPrediction } from "@/lib/logPrediction";
 import { TreatmentPlansToolProps } from "@/app/types/props";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, SaveIcon, Check } from "lucide-react";
 
 export const TreatmentPlansTool = ({
   prefilledAge,
   prefilledSbp,
   prefilledDbp,
   prefilledBpGrade,
+  patientAssessment,
   onResultsUpdate,
   isDisabled,
 }: TreatmentPlansToolProps) => {
@@ -23,6 +25,8 @@ export const TreatmentPlansTool = ({
   const [results, setResults] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   // Sync prefilled props to state
   useEffect(() => {
@@ -132,17 +136,44 @@ export const TreatmentPlansTool = ({
   useEffect(() => {
     if (!results || !selectedBpDefinition || !selectedRiskCategory) return;
 
-    logPrediction({
-      tool: "treatmentPlans",
-      inputs: {
-        bpDefinition: selectedBpDefinition,
-        riskCategory: selectedRiskCategory,
-      },
-      result: results,
-    });
+    // Don't auto-save - wait for manual save button click
   }, [results, selectedBpDefinition, selectedRiskCategory]);
 
-  return (
+  const handleSave = async () => {
+    if (!results || !selectedBpDefinition || !selectedRiskCategory) return;
+    setSaving(true);
+    
+    try {
+      await logPrediction({
+        tool: "treatmentPlans",
+        inputs: {
+          bpDefinition: selectedBpDefinition,
+          riskCategory: selectedRiskCategory,
+        },
+        result: results,
+        metadata: {
+          patientDetails: patientAssessment ? {
+            name: patientAssessment.name,
+            aadhar: patientAssessment.aadhar,
+            mobile: patientAssessment.mobile,
+            dateOfBirth: patientAssessment.dateOfBirth,
+            age: patientAssessment.age,
+            sbp: patientAssessment.sbp,
+            dbp: patientAssessment.dbp,
+            comorbidities: patientAssessment.comorbidities,
+            isPregnant: patientAssessment.isPregnant,
+            takingOtherDrugs: patientAssessment.takingOtherDrugs,
+          } : undefined,
+        },
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (error) {
+      console.error("Failed to save", error);
+    } finally {
+      setSaving(false);
+    }
+  };
     <div className="space-y-6">
       <p className="text-muted-foreground text-sm">
         Enter patient age and blood pressure for ML-powered treatment recommendations.
@@ -267,9 +298,30 @@ export const TreatmentPlansTool = ({
       {/* ML Results */}
       {results && (results.preferredDrugs || results.therapy) && (
         <Card className="p-6 bg-green-50 border-green-200 animate-in fade-in duration-300">
-          <h3 className="text-lg font-bold text-green-900 mb-4">
-            ✅ ML-Recommended Treatment Plan
-          </h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold text-green-900">
+              ✅ ML-Recommended Treatment Plan
+            </h3>
+            <Button
+              onClick={handleSave}
+              disabled={saving || saved}
+              size="sm"
+              variant="default"
+              className="flex items-center gap-2"
+            >
+              {saved ? (
+                <>
+                  <Check className="h-4 w-4" />
+                  Saved
+                </>
+              ) : (
+                <>
+                  <SaveIcon className="h-4 w-4" />
+                  Save Result
+                </>
+              )}
+            </Button>
+          </div>
           <div className="space-y-4">
             {/* ML-Generated Results */}
             {results.preferredDrugs && (

@@ -26,6 +26,7 @@ export interface TreatmentPlansToolProps {
   prefilledSbp?: string;
   prefilledDbp?: string;
   prefilledBpGrade?: BPGradeResult | null;
+  patientAssessment?: PatientAssessment;
   onResultsUpdate?: (results: any) => void;
   isDisabled?: boolean;
 }
@@ -39,6 +40,7 @@ export interface DrugDosingToolProps {
   prefilledSbp?: string;
   prefilledDbp?: string;
   prefilledKidneyStatus?: "normal" | "mild" | "moderate" | "severe";
+  patientAssessment?: PatientAssessment;
   onResultsUpdate?: (results: any) => void;
   isDisabled?: boolean;
 }
@@ -51,6 +53,7 @@ export interface DrugClassesToolProps {
   prefilledAge?: string;
   prefilledSbp?: string;
   prefilledDbp?: string;
+  patientAssessment?: PatientAssessment;
   onResultsUpdate?: (results: any) => void;
   isDisabled?: boolean;
 }

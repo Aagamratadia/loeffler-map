@@ -2,14 +2,16 @@ import { useEffect, useState } from "react";
 import { drugClassesData } from "@/data/drugData";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 import { DrugClassesToolProps } from "@/app/types/props";
-import { ChevronDown, Loader2 } from "lucide-react";
+import { ChevronDown, Loader2, SaveIcon, Check } from "lucide-react";
 import { logPrediction } from "@/lib/logPrediction";
 
 export const DrugClassesTool = ({
   prefilledAge,
   prefilledSbp,
   prefilledDbp,
+  patientAssessment,
   onResultsUpdate,
   isDisabled,
 }: DrugClassesToolProps) => {
@@ -22,6 +24,8 @@ export const DrugClassesTool = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [mlResults, setMlResults] = useState<any>(null);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   // Sync prefilled props to state
   useEffect(() => {
@@ -49,6 +53,7 @@ export const DrugClassesTool = ({
     setSelectedClass(value);
     setSelectedCategory("");
     setResult(null);
+    setSaved(false);
   };
 
   const handleCategoryChange = (value: string) => {
@@ -56,6 +61,7 @@ export const DrugClassesTool = ({
     if (value && selectedClass) {
       const data = drugClassesData[selectedClass as keyof typeof drugClassesData];
       setResult(data?.[value as keyof typeof data]);
+      setSaved(false);
     }
   };
 
@@ -118,15 +124,44 @@ export const DrugClassesTool = ({
   useEffect(() => {
     if (!result || !selectedClass || !selectedCategory) return;
 
-    logPrediction({
-      tool: "drugClasses",
-      inputs: {
-        drugClass: selectedClass,
-        category: selectedCategory,
-      },
-      result,
-    });
+    // Don't auto-save - wait for manual save button click
   }, [result, selectedClass, selectedCategory]);
+
+  const handleSave = async () => {
+    if (!result || !selectedClass || !selectedCategory) return;
+    setSaving(true);
+    
+    try {
+      await logPrediction({
+        tool: "drugClasses",
+        inputs: {
+          drugClass: selectedClass,
+          category: selectedCategory,
+        },
+        result,
+        metadata: {
+          patientDetails: patientAssessment ? {
+            name: patientAssessment.name,
+            aadhar: patientAssessment.aadhar,
+            mobile: patientAssessment.mobile,
+            dateOfBirth: patientAssessment.dateOfBirth,
+            age: patientAssessment.age,
+            sbp: patientAssessment.sbp,
+            dbp: patientAssessment.dbp,
+            comorbidities: patientAssessment.comorbidities,
+            isPregnant: patientAssessment.isPregnant,
+            takingOtherDrugs: patientAssessment.takingOtherDrugs,
+          } : undefined,
+        },
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (error) {
+      console.error("Failed to save", error);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -282,9 +317,30 @@ export const DrugClassesTool = ({
       {/* Standard Lookup Results */}
       {result && (
         <Card className="p-6 bg-card border-border shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
-          <h3 className="text-lg font-semibold text-foreground mb-4 pb-2 border-b border-border">
-            Drug Class Information
-          </h3>
+          <div className="flex items-center justify-between mb-4 pb-2 border-b border-border">
+            <h3 className="text-lg font-semibold text-foreground">
+              Results
+            </h3>
+            <Button
+              onClick={handleSave}
+              disabled={saving || saved}
+              size="sm"
+              variant="default"
+              className="flex items-center gap-2"
+            >
+              {saved ? (
+                <>
+                  <Check className="h-4 w-4" />
+                  Saved
+                </>
+              ) : (
+                <>
+                  <SaveIcon className="h-4 w-4" />
+                  Save Result
+                </>
+              )}
+            </Button>
+          </div>
           <div className="space-y-4">
             <div>
               <p className="text-sm font-semibold text-muted-foreground mb-1">Specific Indication:</p>

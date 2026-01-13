@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { drugInteractionsData } from "@/data/drugData";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { ChevronDown, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { ChevronDown, Loader2, SaveIcon, Check } from "lucide-react";
 import { logPrediction } from "@/lib/logPrediction";
 import { DrugInteractionsToolProps } from "@/app/types/props";
 
@@ -22,6 +23,8 @@ export const DrugInteractionsTool = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [mlResults, setMlResults] = useState<any>(null);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
 
   // Sync prefilled props to internal state
   useEffect(() => {
@@ -105,17 +108,30 @@ export const DrugInteractionsTool = ({
   useEffect(() => {
     if (!result || !selectedAgentA || !selectedAgentB) return;
 
-    logPrediction({
-      tool: "drugInteractions",
-      inputs: {
-        agentA: selectedAgentA,
-        agentB: selectedAgentB,
-      },
-      result,
-    });
+    // Don't auto-save - wait for manual save button click
   }, [result, selectedAgentA, selectedAgentB]);
 
-  return (
+  const handleSave = async () => {
+    if (!result || !selectedAgentA || !selectedAgentB) return;
+    setSaving(true);
+    
+    try {
+      await logPrediction({
+        tool: "drugInteractions",
+        inputs: {
+          agentA: selectedAgentA,
+          agentB: selectedAgentB,
+        },
+        result,
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 3000);
+    } catch (error) {
+      console.error("Failed to save", error);
+    } finally {
+      setSaving(false);
+    }
+  };
     <div className="space-y-6">
       <Card className="p-6 bg-card border-border shadow-sm">
         <div className="space-y-4">
@@ -248,9 +264,30 @@ export const DrugInteractionsTool = ({
       {/* Standard Lookup Results */}
       {result && (
         <Card className="p-6 bg-card border-border shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
-          <h3 className="text-lg font-semibold text-foreground mb-4 pb-2 border-b border-border">
-            Drug Interaction Details
-          </h3>
+          <div className="flex items-center justify-between mb-4 pb-2 border-b border-border">
+            <h3 className="text-lg font-semibold text-foreground">
+              Drug Interaction Details
+            </h3>
+            <Button
+              onClick={handleSave}
+              disabled={saving || saved}
+              size="sm"
+              variant="default"
+              className="flex items-center gap-2"
+            >
+              {saved ? (
+                <>
+                  <Check className="h-4 w-4" />
+                  Saved
+                </>
+              ) : (
+                <>
+                  <SaveIcon className="h-4 w-4" />
+                  Save Result
+                </>
+              )}
+            </Button>
+          </div>
           <div className="space-y-4">
             <div>
               <p className="text-sm font-semibold text-muted-foreground mb-1">Interaction Type:</p>

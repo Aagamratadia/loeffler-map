@@ -11,6 +11,7 @@ interface PatientDetailsFormProps {
   aadhar?: string;
   mobile?: string;
   age: number | "";
+  dateOfBirth?: string;
   sbp: number | "";
   dbp: number | "";
   onUpdate: (field: string, value: any) => void;
@@ -22,6 +23,7 @@ export const PatientDetailsForm = ({
   aadhar,
   mobile,
   age,
+  dateOfBirth,
   sbp,
   dbp,
   onUpdate,
@@ -93,6 +95,22 @@ export const PatientDetailsForm = ({
               }
               className="h-10"
               maxLength={10}
+            />
+          </div>
+
+          {/* Date of Birth */}
+          <div className="space-y-2">
+            <Label htmlFor="dateOfBirth" className="text-sm font-medium">
+              Date of Birth
+            </Label>
+            <Input
+              id="dateOfBirth"
+              type="date"
+              value={dateOfBirth || ""}
+              onChange={(e) =>
+                onUpdate("dateOfBirth", e.target.value || undefined)
+              }
+              className="h-10"
             />
           </div>
 
