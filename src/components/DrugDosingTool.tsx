@@ -401,7 +401,7 @@ export const DrugDosingTool = ({
             )}
           </CardContent>
         </Card>
-      )}}
+      )}
     </div>
   );
 };

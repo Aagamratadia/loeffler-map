@@ -174,6 +174,8 @@ export const TreatmentPlansTool = ({
       setSaving(false);
     }
   };
+
+  return (
     <div className="space-y-6">
       <p className="text-muted-foreground text-sm">
         Enter patient age and blood pressure for ML-powered treatment recommendations.

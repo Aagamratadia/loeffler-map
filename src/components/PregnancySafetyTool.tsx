@@ -129,7 +129,7 @@ export const PregnancySafetyTool = ({
             )}
           </div>
         </Card>
-      )}}
+      )}
     </div>
   );
 };

@@ -132,6 +132,8 @@ export const DrugInteractionsTool = ({
       setSaving(false);
     }
   };
+
+  return (
     <div className="space-y-6">
       <Card className="p-6 bg-card border-border shadow-sm">
         <div className="space-y-4">
