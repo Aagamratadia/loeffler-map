@@ -6,6 +6,7 @@ import { callMLInference, isModelAvailable } from "@/lib/ml-inference";
 const predictionSchema = z.object({
   tool: z.string().min(1),
   inputs: z.record(z.any()).default({}),
+  result: z.any().optional(), // Accept result from client (for manual saves)
   metadata: z.record(z.any()).optional(),
 });
 
@@ -54,49 +55,52 @@ export async function POST(request: Request) {
     );
   }
 
-  const { tool, inputs, metadata } = parsed.data;
+  const { tool, inputs, result: clientResult, metadata } = parsed.data;
 
   try {
-    let result: any = null;
+    let result: any = clientResult; // Use client-provided result if available
 
-    // For antihypertensive drug recommendations, use ML model
-    if (
-      tool === "antihypertensive-recommender" ||
-      tool === "drug-dosing"
-    ) {
-      // Check if model is available
-      if (!isModelAvailable()) {
-        return NextResponse.json(
-          {
-            error: "ML model not available",
-            message:
-              "The model has not been trained yet. Please run: python scripts/train_model.py --data <dataset.csv>",
-          },
-          { status: 503 }
-        );
-      }
+    // Only generate result if not provided by client
+    if (!result) {
+      // For antihypertensive drug recommendations, use ML model
+      if (
+        tool === "antihypertensive-recommender" ||
+        tool === "drug-dosing"
+      ) {
+        // Check if model is available
+        if (!isModelAvailable()) {
+          return NextResponse.json(
+            {
+              error: "ML model not available",
+              message:
+                "The model has not been trained yet. Please run: python scripts/train_model.py --data <dataset.csv>",
+            },
+            { status: 503 }
+          );
+        }
 
-      try {
-        // Call Python ML inference
-        result = await callMLInference(inputs);
-      } catch (mlError) {
-        console.error("ML inference failed:", mlError);
-        return NextResponse.json(
-          {
-            error: "ML prediction failed",
-            message:
-              mlError instanceof Error
-                ? mlError.message
-                : "Unknown error",
-          },
-          { status: 500 }
-        );
+        try {
+          // Call Python ML inference
+          result = await callMLInference(inputs);
+        } catch (mlError) {
+          console.error("ML inference failed:", mlError);
+          return NextResponse.json(
+            {
+              error: "ML prediction failed",
+              message:
+                mlError instanceof Error
+                  ? mlError.message
+                  : "Unknown error",
+            },
+            { status: 500 }
+          );
+        }
+      } else {
+        // For other tools, return placeholder
+        result = {
+          message: `Tool '${tool}' not yet implemented`,
+        };
       }
-    } else {
-      // For other tools, return placeholder
-      result = {
-        message: `Tool '${tool}' not yet implemented`,
-      };
     }
 
     // Log to MongoDB

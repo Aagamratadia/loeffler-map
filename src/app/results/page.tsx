@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { HeartPulse, Calendar, ArrowLeft, Printer } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { HeartPulse, Calendar, ArrowLeft, Printer, Trash2 } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
 
@@ -12,6 +13,20 @@ type Prediction = {
   tool: string;
   inputs: Record<string, any>;
   result: any;
+  metadata?: {
+    patientDetails?: {
+      name?: string;
+      aadhar?: string;
+      mobile?: string;
+      dateOfBirth?: string;
+      age?: string;
+      sbp?: string;
+      dbp?: string;
+      comorbidities?: Record<string, boolean>;
+      isPregnant?: string;
+      takingOtherDrugs?: string;
+    };
+  };
   createdAt: string;
 };
 
@@ -30,6 +45,7 @@ const ResultsPage = () => {
   const [error, setError] = useState<string | null>(null);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPredictions = async () => {
@@ -73,6 +89,31 @@ const ResultsPage = () => {
     window.print();
   };
 
+  const handleDelete = async (id: string) => {
+    if (!confirm("Are you sure you want to delete this result? This action cannot be undone.")) {
+      return;
+    }
+
+    setDeletingId(id);
+    try {
+      const response = await fetch(`/api/predictions/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete result");
+      }
+
+      // Remove from both lists
+      setPredictions(prev => prev.filter(p => p._id !== id));
+      setFilteredPredictions(prev => prev.filter(p => p._id !== id));
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to delete result");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return new Intl.DateTimeFormat("en-US", {
@@ -113,6 +154,82 @@ const ResultsPage = () => {
       );
     }
     return <p className="text-sm text-muted-foreground mt-3">{String(result)}</p>;
+  };
+
+  const renderPatientDetails = (patientDetails: any) => {
+    if (!patientDetails) return null;
+
+    const comorbidities = patientDetails.comorbidities 
+      ? Object.entries(patientDetails.comorbidities)
+          .filter(([_, value]) => value)
+          .map(([key, _]) => key.replace(/([A-Z])/g, " $1").trim())
+          .join(", ")
+      : "None";
+
+    return (
+      <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+        <h3 className="font-semibold text-blue-900 mb-3 flex items-center gap-2">
+          <HeartPulse className="h-4 w-4" />
+          Patient Information
+        </h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {patientDetails.name && (
+            <div className="text-sm">
+              <span className="font-medium text-blue-900">Name:</span>{" "}
+              <span className="text-blue-700">{patientDetails.name}</span>
+            </div>
+          )}
+          {patientDetails.aadhar && (
+            <div className="text-sm">
+              <span className="font-medium text-blue-900">Aadhar:</span>{" "}
+              <span className="text-blue-700">{patientDetails.aadhar}</span>
+            </div>
+          )}
+          {patientDetails.mobile && (
+            <div className="text-sm">
+              <span className="font-medium text-blue-900">Mobile:</span>{" "}
+              <span className="text-blue-700">{patientDetails.mobile}</span>
+            </div>
+          )}
+          {patientDetails.dateOfBirth && (
+            <div className="text-sm">
+              <span className="font-medium text-blue-900">DOB:</span>{" "}
+              <span className="text-blue-700">{patientDetails.dateOfBirth}</span>
+            </div>
+          )}
+          {patientDetails.age && (
+            <div className="text-sm">
+              <span className="font-medium text-blue-900">Age:</span>{" "}
+              <span className="text-blue-700">{patientDetails.age} years</span>
+            </div>
+          )}
+          {(patientDetails.sbp || patientDetails.dbp) && (
+            <div className="text-sm">
+              <span className="font-medium text-blue-900">Blood Pressure:</span>{" "}
+              <span className="text-blue-700">{patientDetails.sbp}/{patientDetails.dbp} mmHg</span>
+            </div>
+          )}
+          {comorbidities !== "None" && (
+            <div className="text-sm col-span-full">
+              <span className="font-medium text-blue-900">Comorbidities:</span>{" "}
+              <span className="text-blue-700">{comorbidities}</span>
+            </div>
+          )}
+          {patientDetails.isPregnant && (
+            <div className="text-sm">
+              <span className="font-medium text-blue-900">Pregnant:</span>{" "}
+              <span className="text-blue-700">{patientDetails.isPregnant}</span>
+            </div>
+          )}
+          {patientDetails.takingOtherDrugs && (
+            <div className="text-sm">
+              <span className="font-medium text-blue-900">Taking Other Drugs:</span>{" "}
+              <span className="text-blue-700">{patientDetails.takingOtherDrugs}</span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -201,6 +318,7 @@ const ResultsPage = () => {
             )}
           </Card>
         )}
+        
         {loading && (
           <div className="text-center text-muted-foreground py-12">
             Loading results...
@@ -249,16 +367,34 @@ const ResultsPage = () => {
             {filteredPredictions.map((prediction) => (
               <Card key={prediction._id} className="p-6 hover:shadow-md transition-shadow">
                 <div className="flex items-start justify-between gap-4 mb-4">
-                  <Badge variant="outline" className="text-primary border-primary">
-                    {toolNames[prediction.tool] || prediction.tool}
-                  </Badge>
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Calendar className="h-4 w-4" />
-                    {formatDate(prediction.createdAt)}
+                  <div className="flex items-center gap-3">
+                    <Badge variant="outline" className="text-primary border-primary">
+                      {toolNames[prediction.tool] || prediction.tool}
+                    </Badge>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Calendar className="h-4 w-4" />
+                      {formatDate(prediction.createdAt)}
+                    </div>
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDelete(prediction._id)}
+                    disabled={deletingId === prediction._id}
+                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
 
                 <div className="space-y-3">
+                  {/* Patient Details */}
+                  {prediction.metadata?.patientDetails && (
+                    <div>
+                      {renderPatientDetails(prediction.metadata.patientDetails)}
+                    </div>
+                  )}
+
                   <div>
                     <h3 className="font-semibold text-foreground mb-2">Inputs</h3>
                     <div className="space-y-1 pl-3 border-l-2 border-muted">
