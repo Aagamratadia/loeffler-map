@@ -146,26 +146,10 @@ export async function POST(request: Request) {
       };
     }
 
-    // Log to MongoDB (optional)
-    try {
-      const client = await getMongoClient();
-      const dbName = process.env.MONGODB_DB || "loeffler";
-      const collectionName =
-        process.env.MONGODB_COLLECTION || "predictions";
-      const collection = client.db(dbName).collection(collectionName);
-
-      await collection.insertOne({
-        tool,
-        inputs,
-        result,
-        metadata,
-        createdAt: new Date(),
-        timestamp: new Date().toISOString(),
-      });
-    } catch (dbError) {
-      console.warn("Failed to log to MongoDB:", dbError);
-      // Continue even if logging fails
-    }
+    // DISABLED: Auto-logging from ML API
+    // All logging now happens via manual "Save Result" button click
+    // This prevents duplicate/partial predictions from being saved
+    // Users will click "Save Result" once after completing their selections
 
     return NextResponse.json({
       ok: true,
