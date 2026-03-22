@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { PregnancySafetyToolProps } from "@/app/types/props";
-import { ChevronDown, SaveIcon, Check } from "lucide-react";
+import { ChevronDown, SaveIcon, Check, AlertCircle } from "lucide-react";
 import { logPrediction } from "@/lib/logPrediction";
 
 export const PregnancySafetyTool = ({
@@ -16,7 +16,17 @@ export const PregnancySafetyTool = ({
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  const agents = Object.keys(pregnancySafetyData);
+  const contraindicatedAgents = [
+    "RAS Blockers (ACEi, ARBs, DRI)",
+    "Mineralocorticoid Receptor Antagonists (Spironolactone)",
+    "Atenolol (Beta-blocker)",
+    "Sodium-Nitroprusside",
+    "Thiazide Diuretics",
+    "Furosemide (Loop Diuretic)",
+  ];
+
+  const allAgents = Object.keys(pregnancySafetyData);
+  const selectableAgents = allAgents.filter((a) => !contraindicatedAgents.includes(a));
 
   const handleAgentChange = (value: string) => {
     setSelectedAgent(value);
@@ -67,12 +77,29 @@ export const PregnancySafetyTool = ({
               className="w-full px-4 py-3 bg-input border border-border rounded-lg text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all pr-10"
             >
               <option value="" disabled>--- Select Drug Agent ---</option>
-              {agents.map((agent) => (
+              {selectableAgents.map((agent) => (
                 <option key={agent} value={agent}>{agent}</option>
               ))}
             </select>
             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground pointer-events-none" />
           </div>
+        </div>
+      </Card>
+
+      <Card className="p-5 bg-red-50/50 border-red-200 shadow-sm">
+        <h3 className="text-sm font-semibold text-red-800 mb-3 flex items-center gap-2">
+          <AlertCircle className="h-4 w-4" />
+          Medications to strictly avoid in pregnancy
+        </h3>
+        <div className="space-y-4">
+          {contraindicatedAgents.map((agent) => (
+            <div key={agent} className="text-sm pb-3 border-b border-red-100 last:border-0 last:pb-0">
+              <p className="font-semibold text-red-900">{agent}</p>
+              <p className="text-red-700 mt-1 leading-relaxed">
+                {pregnancySafetyData[agent as keyof typeof pregnancySafetyData].rationale}
+              </p>
+            </div>
+          ))}
         </div>
       </Card>
 

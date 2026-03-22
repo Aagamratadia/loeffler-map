@@ -2,13 +2,15 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { HeartPulse, UserPlus, Trash2, Loader2, ShieldAlert, Users } from "lucide-react";
+import { HeartPulse, UserPlus, Trash2, Loader2, ShieldAlert, Users, LogOut } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import Link from "next/link";
+
+import Image from "next/image";
 
 interface User {
   _id: string;
@@ -101,6 +103,15 @@ export default function AdminPage() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      window.location.href = "/login";
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50">
       {/* Header */}
@@ -108,8 +119,8 @@ export default function AdminPage() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg">
-                <HeartPulse className="h-7 w-7 text-white" />
+              <div className="relative h-12 w-12 flex-shrink-0">
+                <Image src="/logo.png" alt="Loeffler Logo" fill className="object-contain" priority />
               </div>
               <div>
                 <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
@@ -118,12 +129,21 @@ export default function AdminPage() {
                 <p className="text-xs text-slate-600">Admin Panel</p>
               </div>
             </div>
-            <Link
-              href="/"
-              className="text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-3 py-2 rounded-lg transition-all border border-transparent hover:border-blue-200"
-            >
-              ← Back to App
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/"
+                className="text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-3 py-2 rounded-lg transition-all border border-transparent hover:border-blue-200"
+              >
+                ← Back to App
+              </Link>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-3 md:px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all border border-transparent hover:border-red-200 flex-shrink-0"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="hidden sm:inline">Logout</span>
+              </button>
+            </div>
           </div>
         </div>
       </header>

@@ -4,9 +4,11 @@ import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { HeartPulse, Calendar, ArrowLeft, Printer, Trash2 } from "lucide-react";
+import { HeartPulse, Calendar, ArrowLeft, Printer, Trash2, LogOut } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
+
+import Image from "next/image";
 
 type Prediction = {
   _id: string;
@@ -64,6 +66,15 @@ const ResultsPage = () => {
 
     fetchPredictions();
   }, []);
+
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+      window.location.href = "/login";
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   useEffect(() => {
     if (!predictions.length) return;
@@ -238,8 +249,8 @@ const ResultsPage = () => {
       <header className="bg-card border-b border-border shadow-sm">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg">
-              <HeartPulse className="h-7 w-7 text-white" />
+            <div className="relative h-12 w-12 flex-shrink-0">
+              <Image src="/logo.png" alt="Loeffler Logo" fill className="object-contain" priority />
             </div>
             <div className="flex-1">
               <h1 className="text-2xl md:text-3xl font-bold text-foreground">
@@ -266,6 +277,13 @@ const ResultsPage = () => {
                 <ArrowLeft className="h-4 w-4" />
                 Back to Home
               </Link>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors flex-shrink-0"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="hidden sm:inline">Logout</span>
+              </button>
             </div>
           </div>
         </div>
