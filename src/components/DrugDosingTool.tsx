@@ -15,7 +15,8 @@ export const DrugDosingTool = ({
   patientAssessment,
   onResultsUpdate,
   isDisabled,
-}: DrugDosingToolProps) => {
+  hideMlSection,
+}: DrugDosingToolProps & { hideMlSection?: boolean }) => {
   const [age, setAge] = useState(prefilledAge ?? "");
   const [sysBloodPressure, setSysBloodPressure] = useState(prefilledSbp ?? "");
   const [diaBloodPressure, setDiaBloodPressure] = useState(prefilledDbp ?? "");
@@ -99,10 +100,15 @@ export const DrugDosingTool = ({
             tool: "drug-dosing",
             requestType: "drug_dosing",
             inputs: {
-              age: age,
-              init_sbp: sysBloodPressure,
-              init_dbp: diaBloodPressure,
+              age: Number(age),
+              init_sbp: Number(sysBloodPressure),
+              init_dbp: Number(diaBloodPressure),
               kidney_status: kidneyStatus,
+              // Pass comorbidities so rule engine returns the right contraindications
+              diabetes: patientAssessment?.comorbidities?.diabetes ? 1 : 0,
+              chronic_kidney_disease: patientAssessment?.comorbidities?.ckd ? 1 : 0,
+              heart_failure: patientAssessment?.comorbidities?.heartCondition ? 1 : 0,
+              is_pregnant: patientAssessment?.isPregnant === "yes" ? 1 : 0,
             },
           }),
         });
@@ -136,7 +142,12 @@ export const DrugDosingTool = ({
     };
 
     callMLModel();
-  }, [age, sysBloodPressure, diaBloodPressure, kidneyStatus, onResultsUpdate]);
+  }, [age, sysBloodPressure, diaBloodPressure, kidneyStatus,
+    patientAssessment?.isPregnant,
+    patientAssessment?.comorbidities?.diabetes,
+    patientAssessment?.comorbidities?.ckd,
+    patientAssessment?.comorbidities?.heartCondition,
+  ]);
 
   const availableAgents = selectedClass ? Object.keys((drugDosingData[selectedClass as keyof typeof drugDosingData] || {}) as any) : [];
 
@@ -192,7 +203,8 @@ export const DrugDosingTool = ({
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* ML Inputs */}
+          {/* ML Inputs — hidden when embedded */}
+          {!hideMlSection && (
           <div className="bg-blue-50 p-4 rounded-lg space-y-3">
             <h3 className="font-semibold text-blue-900">ML-Powered Dosing (Age + BP)</h3>
             
@@ -258,6 +270,7 @@ export const DrugDosingTool = ({
               </select>
             </div>
           </div>
+          )}
 
           {/* Standard Lookup */}
           <div className="space-y-3 pt-4 border-t">
@@ -339,9 +352,9 @@ export const DrugDosingTool = ({
                 </div>
               </div>
             )}
-            {mlResults.contraindicated && (
+            {mlResults.contraindicated && mlResults.contraindicated.length > 0 && (
               <div>
-                <p className="text-sm font-semibold text-red-900 mb-2">Contraindicated:</p>
+                <p className="text-sm font-semibold text-red-900 mb-2">⚠️ Avoid in this patient:</p>
                 <div className="flex flex-wrap gap-2">
                   {mlResults.contraindicated.map((drug: string) => (
                     <span key={drug} className="px-3 py-1 bg-red-200 text-red-900 rounded-full text-sm font-medium">

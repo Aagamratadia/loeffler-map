@@ -23,6 +23,7 @@ const HomePage = () => {
     age: "",
     sbp: "",
     dbp: "",
+    gender: "",
     comorbidities: {
       diabetes: false,
       heartCondition: false,
@@ -76,14 +77,23 @@ const HomePage = () => {
                 </p>
               </div>
             </div>
-            <Link
-              href="/results"
-              className="flex items-center gap-2 px-3 md:px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200 border border-transparent hover:border-blue-200"
-            >
-              <History className="h-4 w-4" />
-              <span className="hidden sm:inline">Saved Results</span>
-              <span className="sm:hidden">Results</span>
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link
+                href="/admin"
+                className="flex items-center gap-2 px-3 md:px-4 py-2 text-sm font-medium text-purple-600 hover:text-purple-700 hover:bg-purple-50 rounded-lg transition-all duration-200 border border-transparent hover:border-purple-200"
+              >
+                <span className="hidden sm:inline">Admin</span>
+                <span className="sm:hidden">⚙️</span>
+              </Link>
+              <Link
+                href="/results"
+                className="flex items-center gap-2 px-3 md:px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-lg transition-all duration-200 border border-transparent hover:border-blue-200"
+              >
+                <History className="h-4 w-4" />
+                <span className="hidden sm:inline">Saved Results</span>
+                <span className="sm:hidden">Results</span>
+              </Link>
+            </div>
           </div>
         </div>
       </header>
@@ -133,12 +143,17 @@ const HomePage = () => {
             dateOfBirth={assessment.dateOfBirth}
             sbp={assessment.sbp}
             dbp={assessment.dbp}
+            gender={assessment.gender}
             bpGrade={bpGrade}
             onUpdate={(field: string, value: any) => {
-              setAssessment(prev => ({
-                ...prev,
-                [field]: value,
-              }));
+              setAssessment(prev => {
+                const updated = { ...prev, [field]: value };
+                // Reset pregnancy if gender changes away from female
+                if (field === "gender" && value !== "female") {
+                  updated.isPregnant = "";
+                }
+                return updated;
+              });
             }}
           />
         </div>
@@ -165,8 +180,8 @@ const HomePage = () => {
           />
         </div>
 
-        {/* Section 3: Pregnancy Safety (Conditional) */}
-        {assessment.age && parseFloat(assessment.age.toString()) < 50 && (
+        {/* Section 3: Pregnancy Safety (Female patients under 55 only) */}
+        {assessment.gender === 'female' && assessment.age && parseFloat(assessment.age.toString()) < 55 && (
           <div className="mb-8">
             <div className="flex items-center gap-3 mb-4">
               <div className="flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-600 font-semibold text-sm">

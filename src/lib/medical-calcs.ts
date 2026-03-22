@@ -92,6 +92,23 @@ export function calculateBPGrade(
 }
 
 /**
+ * Map SBP/DBP values to the matching treatmentPlansData key
+ * Used to auto-select the BP Definition in TreatmentPlansTool
+ */
+export function getBPDefinitionKey(sbp: number | "", dbp: number | ""): string {
+  if (sbp === "" || dbp === "") return "";
+  const s = Number(sbp);
+  const d = Number(dbp);
+
+  // Keys must exactly match treatmentPlansData keys in drugData.ts
+  if (s > 180 && d > 120) return "SBP >180, DBP >120 + acute organ damage";
+  if (s > 180 || d > 110) return "SBP \u2265180 mmHg and/or DBP \u2265110 mmHg";
+  if (s >= 160 || d >= 100) return "SBP \u2265160 mmHg and/or DBP \u2265100 mmHg";
+  if (s >= 140 || d >= 90)  return "SBP 140\u2013159 mmHg and/or DBP 90\u201399 mmHg";
+  return "SBP 120\u2013139 mmHg and/or DBP 70\u201389 mmHg";
+}
+
+/**
  * Validate patient assessment data completeness
  * Returns an object indicating which sections are complete
  *

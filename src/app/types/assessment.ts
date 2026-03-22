@@ -19,6 +19,9 @@ export interface PatientAssessment {
   sbp: number | ""; // Systolic Blood Pressure (mmHg)
   dbp: number | ""; // Diastolic Blood Pressure (mmHg)
 
+  // Gender
+  gender: "male" | "female" | "other" | "";
+
   // Section 2: Clinical Profile (Sources 10-12)
   comorbidities: {
     diabetes: boolean;
@@ -27,7 +30,7 @@ export interface PatientAssessment {
     other: boolean;
   };
 
-  // Section 3: Pregnancy Status (Source 14)
+  // Section 3: Pregnancy Status (Source 14) - only relevant for female patients
   isPregnant: "yes" | "no" | ""; // Unset initially
 
   // Section 4: Polypharmacy (Source 20)

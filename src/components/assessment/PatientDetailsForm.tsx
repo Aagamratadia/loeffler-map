@@ -14,6 +14,7 @@ interface PatientDetailsFormProps {
   dateOfBirth?: string;
   sbp: number | "";
   dbp: number | "";
+  gender?: "male" | "female" | "other" | "";
   onUpdate: (field: string, value: any) => void;
   bpGrade?: BPGradeResult | null;
 }
@@ -26,6 +27,7 @@ export const PatientDetailsForm = ({
   dateOfBirth,
   sbp,
   dbp,
+  gender,
   onUpdate,
   bpGrade,
 }: PatientDetailsFormProps) => {
@@ -33,11 +35,9 @@ export const PatientDetailsForm = ({
     e: React.ChangeEvent<HTMLInputElement>,
     field: "age" | "sbp" | "dbp"
   ) => {
-    const value = e.target.value === "" ? "" : Number(e.target.value);
-
     if (field === "age") {
       onUpdate("age", e.target.value);
-    } else if (field === "sbp" || field === "dbp") {
+    } else {
       onUpdate(field, e.target.value);
     }
   };
@@ -46,15 +46,11 @@ export const PatientDetailsForm = ({
     <div className="space-y-6">
       {/* Demographics Section */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-900 mb-4">
-          Demographics
-        </h3>
+        <h3 className="text-sm font-semibold text-gray-900 mb-4">Demographics</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Name */}
           <div className="space-y-2">
-            <Label htmlFor="name" className="text-sm font-medium">
-              Patient Name *
-            </Label>
+            <Label htmlFor="name" className="text-sm font-medium">Patient Name *</Label>
             <Input
               id="name"
               placeholder="Full name"
@@ -66,16 +62,12 @@ export const PatientDetailsForm = ({
 
           {/* Aadhar */}
           <div className="space-y-2">
-            <Label htmlFor="aadhar" className="text-sm font-medium">
-              Aadhar Number
-            </Label>
+            <Label htmlFor="aadhar" className="text-sm font-medium">Aadhar Number</Label>
             <Input
               id="aadhar"
               placeholder="12-digit Aadhar"
               value={aadhar || ""}
-              onChange={(e) =>
-                onUpdate("aadhar", e.target.value || undefined)
-              }
+              onChange={(e) => onUpdate("aadhar", e.target.value || undefined)}
               className="h-10"
               maxLength={12}
             />
@@ -83,16 +75,12 @@ export const PatientDetailsForm = ({
 
           {/* Mobile */}
           <div className="space-y-2">
-            <Label htmlFor="mobile" className="text-sm font-medium">
-              Mobile Number
-            </Label>
+            <Label htmlFor="mobile" className="text-sm font-medium">Mobile Number</Label>
             <Input
               id="mobile"
               placeholder="10-digit mobile number"
               value={mobile || ""}
-              onChange={(e) =>
-                onUpdate("mobile", e.target.value || undefined)
-              }
+              onChange={(e) => onUpdate("mobile", e.target.value || undefined)}
               className="h-10"
               maxLength={10}
             />
@@ -100,25 +88,19 @@ export const PatientDetailsForm = ({
 
           {/* Date of Birth */}
           <div className="space-y-2">
-            <Label htmlFor="dateOfBirth" className="text-sm font-medium">
-              Date of Birth
-            </Label>
+            <Label htmlFor="dateOfBirth" className="text-sm font-medium">Date of Birth</Label>
             <Input
               id="dateOfBirth"
               type="date"
               value={dateOfBirth || ""}
-              onChange={(e) =>
-                onUpdate("dateOfBirth", e.target.value || undefined)
-              }
+              onChange={(e) => onUpdate("dateOfBirth", e.target.value || undefined)}
               className="h-10"
             />
           </div>
 
           {/* Age */}
           <div className="space-y-2">
-            <Label htmlFor="age" className="text-sm font-medium">
-              Age (years) *
-            </Label>
+            <Label htmlFor="age" className="text-sm font-medium">Age (years) *</Label>
             <Input
               id="age"
               type="number"
@@ -130,21 +112,32 @@ export const PatientDetailsForm = ({
               className="h-10"
             />
           </div>
+
+          {/* Gender */}
+          <div className="space-y-2">
+            <Label htmlFor="gender" className="text-sm font-medium">Gender *</Label>
+            <select
+              id="gender"
+              value={gender || ""}
+              onChange={(e) => onUpdate("gender", e.target.value || "")}
+              className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring"
+            >
+              <option value="">-- Select Gender --</option>
+              <option value="female">Female</option>
+              <option value="male">Male</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
         </div>
       </div>
 
       {/* Vitals Section */}
       <div>
-        <h3 className="text-sm font-semibold text-gray-900 mb-4">
-          Blood Pressure
-        </h3>
+        <h3 className="text-sm font-semibold text-gray-900 mb-4">Blood Pressure</h3>
         <div className="space-y-4">
-          {/* BP Inputs */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="sbp" className="text-sm font-medium">
-                Systolic (SBP) *
-              </Label>
+              <Label htmlFor="sbp" className="text-sm font-medium">Systolic (SBP) *</Label>
               <Input
                 id="sbp"
                 type="number"
@@ -158,9 +151,7 @@ export const PatientDetailsForm = ({
               <p className="text-xs text-gray-500">mmHg</p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="dbp" className="text-sm font-medium">
-                Diastolic (DBP) *
-              </Label>
+              <Label htmlFor="dbp" className="text-sm font-medium">Diastolic (DBP) *</Label>
               <Input
                 id="dbp"
                 type="number"
@@ -194,9 +185,7 @@ export const PatientDetailsForm = ({
                   {bpGrade.grade}
                 </Badge>
               </div>
-              <p className="text-xs text-gray-600 mt-2">
-                {bpGrade.description}
-              </p>
+              <p className="text-xs text-gray-600 mt-2">{bpGrade.description}</p>
             </div>
           )}
         </div>
