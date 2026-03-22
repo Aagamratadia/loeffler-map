@@ -11,9 +11,9 @@ export interface PatientAssessment {
   // Section 1: Demographics (Sources 2-5)
   name: string;
   aadhar?: string;
+  abha?: string;
   mobile?: string;
   age: number | "";
-  dateOfBirth?: string; // ISO format (YYYY-MM-DD)
 
   // Section 1: Vitals (Sources 6-8)
   sbp: number | ""; // Systolic Blood Pressure (mmHg)

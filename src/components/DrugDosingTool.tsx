@@ -173,8 +173,8 @@ export const DrugDosingTool = ({
           patientDetails: patientAssessment ? {
             name: patientAssessment.name,
             aadhar: patientAssessment.aadhar,
+            abha: patientAssessment.abha,
             mobile: patientAssessment.mobile,
-            dateOfBirth: patientAssessment.dateOfBirth,
             age: patientAssessment.age,
             sbp: patientAssessment.sbp,
             dbp: patientAssessment.dbp,

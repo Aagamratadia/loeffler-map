@@ -9,9 +9,9 @@ import { PatientAssessment, BPGradeResult } from "@/app/types/assessment";
 interface PatientDetailsFormProps {
   name: string;
   aadhar?: string;
+  abha?: string;
   mobile?: string;
   age: number | "";
-  dateOfBirth?: string;
   sbp: number | "";
   dbp: number | "";
   gender?: "male" | "female" | "other" | "";
@@ -22,9 +22,9 @@ interface PatientDetailsFormProps {
 export const PatientDetailsForm = ({
   name,
   aadhar,
+  abha,
   mobile,
   age,
-  dateOfBirth,
   sbp,
   dbp,
   gender,
@@ -60,18 +60,7 @@ export const PatientDetailsForm = ({
             />
           </div>
 
-          {/* Aadhar */}
-          <div className="space-y-2">
-            <Label htmlFor="aadhar" className="text-sm font-medium">Aadhar Number</Label>
-            <Input
-              id="aadhar"
-              placeholder="12-digit Aadhar"
-              value={aadhar || ""}
-              onChange={(e) => onUpdate("aadhar", e.target.value || undefined)}
-              className="h-10"
-              maxLength={12}
-            />
-          </div>
+
 
           {/* Mobile */}
           <div className="space-y-2">
@@ -86,15 +75,29 @@ export const PatientDetailsForm = ({
             />
           </div>
 
-          {/* Date of Birth */}
+          {/* Aadhar */}
           <div className="space-y-2">
-            <Label htmlFor="dateOfBirth" className="text-sm font-medium">Date of Birth</Label>
+            <Label htmlFor="aadhar" className="text-sm font-medium">Aadhar Number</Label>
             <Input
-              id="dateOfBirth"
-              type="date"
-              value={dateOfBirth || ""}
-              onChange={(e) => onUpdate("dateOfBirth", e.target.value || undefined)}
+              id="aadhar"
+              placeholder="12-digit Aadhar"
+              value={aadhar || ""}
+              onChange={(e) => onUpdate("aadhar", e.target.value || undefined)}
               className="h-10"
+              maxLength={12}
+            />
+          </div>
+
+          {/* ABHA */}
+          <div className="space-y-2">
+            <Label htmlFor="abha" className="text-sm font-medium">ABHA Number</Label>
+            <Input
+              id="abha"
+              placeholder="14-digit ABHA"
+              value={abha || ""}
+              onChange={(e) => onUpdate("abha", e.target.value || undefined)}
+              className="h-10"
+              maxLength={14}
             />
           </div>
 

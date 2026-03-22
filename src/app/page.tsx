@@ -18,8 +18,8 @@ const HomePage = () => {
   const [assessment, setAssessment] = useState<PatientAssessment>({
     name: "",
     aadhar: "",
+    abha: "",
     mobile: "",
-    dateOfBirth: "",
     age: "",
     sbp: "",
     dbp: "",
@@ -138,9 +138,9 @@ const HomePage = () => {
           <PatientDetailsForm
             name={assessment.name}
             aadhar={assessment.aadhar}
+            abha={assessment.abha}
             mobile={assessment.mobile}
             age={assessment.age}
-            dateOfBirth={assessment.dateOfBirth}
             sbp={assessment.sbp}
             dbp={assessment.dbp}
             gender={assessment.gender}

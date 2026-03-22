@@ -17,8 +17,8 @@ type Prediction = {
     patientDetails?: {
       name?: string;
       aadhar?: string;
+      abha?: string;
       mobile?: string;
-      dateOfBirth?: string;
       age?: string;
       sbp?: string;
       dbp?: string;
@@ -185,18 +185,19 @@ const ResultsPage = () => {
               <span className="text-blue-700">{patientDetails.aadhar}</span>
             </div>
           )}
+          {patientDetails.abha && (
+            <div className="text-sm">
+              <span className="font-medium text-blue-900">ABHA:</span>{" "}
+              <span className="text-blue-700">{patientDetails.abha}</span>
+            </div>
+          )}
           {patientDetails.mobile && (
             <div className="text-sm">
               <span className="font-medium text-blue-900">Mobile:</span>{" "}
               <span className="text-blue-700">{patientDetails.mobile}</span>
             </div>
           )}
-          {patientDetails.dateOfBirth && (
-            <div className="text-sm">
-              <span className="font-medium text-blue-900">DOB:</span>{" "}
-              <span className="text-blue-700">{patientDetails.dateOfBirth}</span>
-            </div>
-          )}
+
           {patientDetails.age && (
             <div className="text-sm">
               <span className="font-medium text-blue-900">Age:</span>{" "}
